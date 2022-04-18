@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <origin>USGS Astrogeology Science Center</origin>
+        <pubdate>20200303</pubdate>
+        <title>Unified Geologic Map of the Moon, 1:5M, 2020</title>
+        <edition>2.0,  March 3,  2020</edition>
+        <geoform>Geologic Map</geoform>
+        <serinfo>
+          <sername/>
+          <issue/>
+        </serinfo>
+        <pubinfo>
+          <pubplace>Flagstaff, AZ</pubplace>
+          <publish>USGS Astrogeology Science Center</publish>
+        </pubinfo>
+        <onlink>https://astrogeology.usgs.gov/search/map/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2</onlink>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract><![CDATA[This new work represents a seamless, globally consistent, 1:5,000,000-scale geologic map derived from 
+ the six digitally renovated geologic maps (see Source Online Linkage below). The goal of this project was to 
+create a digital resource for science research and analysis, future geologic mapping efforts, be it local-, regional-, 
+or global-scale products, and as a resource
+ for the educators and the public interested in lunar geology. Here we present the completed mapping 
+ project as unit contacts, geologic unit polygons, linear features, and unit and feature nomenclature 
+ annotation. The product overlies shaded-relief products derived from SELENE Kaguya terrain camera stereo 
+ (equatorial, ~60 m/pix) and LOLA altimetry (north and south polar, 100 m/pix). These data are not 
+ included with this download due to size considerations, but a readme in the "Lunar_Raster" folder 
+ provides the download links. This download page includes a PDF of the geologic map (right-side) with a brief Description 
+ of Map Units and Explanation of Map Symbols, as well as a JPG of the map for quick access viewing.  This release is subject to update based on community feedback and peer-review.
+
+<b>Version 2 updates</b>: 
+Two errors were addressed in this update:
+(1) Large area polygons were offset from their contacts, likely due to user error. Polygons were rebuilt 
+to fix the issue and post processing (dissolving, reattributing, etc.) to rectify the aesthetic of the map. 
+(2) Contacts were not visible but should have been due to incorrect labeling as DND (do not draw). Those that 
+needed to be drawn have been reattributed as "certain" those that are not drawn are labeled as "internal".   
+Additionally, in version 1 of this data, crater polygons with similar attributes had been dissolved and lumped 
+into contiguous units. This has been changed so that all craters are now discrete units. This adds ~1000 units 
+to the GeoUnits featureclass and the related contacts are now visible and labeled as "certain".  
+
+
+<b>References:</b>
+
+Fortezzo, C.M., Spudis, P. D. and Harrel, S. L. (2020). <em>Release of the Digital Unified Global Geologic Map of the Moon At 1:5,000,000- Scale.</em> Paper presented at the 51st Lunar and Planetary Science Conference, Lunar and Planetary Institute, Houston, TX. <a href='https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf' target='_blank'>https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf</a>]]></abstract>
+      <purpose><![CDATA[The chief purpose of the 5M scale map is to summarize the current state of lunar geologic knowledge. Like terrestrial synoptic maps it provides a stratigraphic framework to be used for developing new theory and for determining the regional significance of surface exploration results. In addition to serving as a framework for interpreting surface exploration results,  the effort to classify units into type and age by photogeology narrows the range of possible origins for many features.]]></purpose>
+      <supplinf><![CDATA[https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf]]></supplinf>
+    </descript>
+    <timeperd>
+      <current>Publication date</current>
+      <timeinfo>
+        <rngdates>
+          <begdate/>
+          <enddate/>
+        </rngdates>
+      </timeinfo>
+    </timeperd>
+    <status>
+      <progress>Complete</progress>
+      <update>As needed</update>
+    </status>
+    <spdom>
+      <bounding>
+        <westbc>-180</westbc>
+        <eastbc>180</eastbc>
+        <northbc>90</northbc>
+        <southbc>-90</southbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekt>Astropedia</themekt>
+        <themekey/>
+      </theme>
+    </keywords>
+    <accscope>PGM, MRCTR</accscope>
+    <accconst>none</accconst>
+    <useconst>please cite authors</useconst>
+    <ptcontac>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>USGS Astrogeology Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>2255 N. Gemini Drive</address>
+          <city>Flagstaff</city>
+          <state>AZ</state>
+          <postal>86001</postal>
+        </cntaddr>
+        <cntvoice>928-556-7011</cntvoice>
+        <cntemail>astroweb@usgs.gov</cntemail>
+      </cntinfo>
+    </ptcontac>
+    <browse>
+      <browsen>http://astropedia.astrogeology.usgs.gov/download/Moon/Geology/thumbs/merc_Unified_Geologic_Map_of_The_Moon_1024.jpg</browsen>
+      <browsed/>
+      <browset>JPEG</browset>
+    </browse>
+    <native>ESRI Arcinfo</native>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr>Best Effort</attraccr>
+    </attracc>
+    <logic>These maps are updated and sometimes a reinterpretation of the original geologic units or relationships.</logic>
+    <complete>This release is globally produced at a 5M scale.</complete>
+    <posacc>
+      <horizpa>
+        <horizpar>Accurate to Control Net</horizpar>
+      </horizpa>
+      <vertacc>
+        <vertaccr/>
+      </vertacc>
+    </posacc>
+    <lineage>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>U. S. geological Survey</origin>
+            <pubdate/>
+            <title>1:5M Lunar Geologic Map Series</title>
+            <online>https://astrogeology.usgs.gov/search/map/Moon/Geology/Lunar_Geologic_GIS_Renovation_March2013</online>
+          </citeinfo>
+        </srccite>
+        <srcscale>5000000</srcscale>
+        <typesrc/>
+        <srctime>
+          <timeinfo>
+            <sngdate>
+              <caldate/>
+            </sngdate>
+          </timeinfo>
+        </srctime>
+      </srcinfo>
+      <procstep>
+        <procdesc>The current renovation of the digital maps adhered to strict guidelines for vector generation and used recent datasets to spatially adjust the location of the geology and linework. The data sets discussed above were used in combination with ESRI’s ArcMap Geographic Information System (GIS) software,  to draw vectors on the shaded-relief derived from SELENE Kaguya terrain camera stereo (equatorial,  ~60 m/pix) and LOLA altimetry (north and south polar,  100 m/pix). The vectors were drawn with a consistent vertex spacing of ~3 km at 1:1.5M scale,  and were smoothed using a maximum allowable offset tolerance of ~16 km. The adjustments and adherence to these guidelines resulted in a product that increased the feature location accuracy at the 1:5M scale and makes the product more cartographically appealing.</procdesc>
+        <procdate/>
+      </procstep>
+    </lineage>
+  </dataqual>
+  <spdoinfo>
+    <direct>Vector</direct>
+    <rastinfo>
+      <rasttype>Grid Cell</rasttype>
+      <rowcount/>
+      <colcount/>
+    </rastinfo>
+  </spdoinfo>
+  <spref>
+    <horizsys>
+      <planar>
+        <mapproj>
+          <mapprojn>Mercator</mapprojn>
+          <mapprojp>
+            <otherprj/>
+          </mapprojp>
+        </mapproj>
+        <planci>
+          <plance>row and column</plance>
+          <coordrep>
+            <absres/>
+            <ordres/>
+          </coordrep>
+          <plandu/>
+        </planci>
+      </planar>
+      <geodetic>
+        <horizdn>LOLA</horizdn>
+        <ellips>Moon</ellips>
+        <semiaxis>1737400</semiaxis>
+        <denflat>1.0E-10</denflat>
+      </geodetic>
+    </horizsys>
+    <vertdef>
+      <altsys>
+        <altdatum>LOLA</altdatum>
+        <altres/>
+        <altunits/>
+        <altenc>attribute values</altenc>
+      </altsys>
+    </vertdef>
+  </spref>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>USGS Astrogeology Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>2255 N. Gemini Drive</address>
+          <city>Flagstaff</city>
+          <state>AZ</state>
+          <postal>86001</postal>
+        </cntaddr>
+        <cntvoice>928-556-7011</cntvoice>
+        <cntemail>astroweb@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <distliab>None</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>zip</formname>
+          <transize>224413040</transize>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>http://astropedia.astrogeology.usgs.gov/download/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2.zip</networkr>
+              </networka>
+            </computer>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+    </stdorder>
+  </distinfo>
+  <solarsys>
+    <planetsr>USGS Astrogeology Astropedia</planetsr>
+    <body>
+      <system>Earth</system>
+      <target>Moon</target>
+      <quadsys/>
+      <quadname/>
+      <rada>1737400</rada>
+      <radb/>
+      <radc>1737400</radc>
+      <lattype>Planetocentric</lattype>
+      <londom>-180 to 180</londom>
+      <londir>Positive East</londir>
+    </body>
+    <footprin>
+      <maxlat>90</maxlat>
+      <minlat>-90</minlat>
+      <maxlon>180</maxlon>
+      <minlon>-180</minlon>
+    </footprin>
+    <feature>
+      <featkey/>
+    </feature>
+    <litho>
+      <lithokey/>
+    </litho>
+    <tempo>
+      <tempokey>Copernican</tempokey>
+      <tempokey>Eratosthenian</tempokey>
+      <tempokey>Imbrian</tempokey>
+      <tempokey>Nectarian</tempokey>
+      <tempokey>Pre-Nectarian</tempokey>
+    </tempo>
+    <mission>
+      <missikey>Lunar Reconnaissance Orbiter</missikey>
+      <missikey>Kaguya</missikey>
+    </mission>
+    <instr>
+      <instrkey/>
+      <instrkey>LOLA</instrkey>
+      <instrkey>TC</instrkey>
+      <instrkey>SELENE</instrkey>
+    </instr>
+    <pdsstat/>
+    <pdsarch/>
+    <rover>
+      <sol/>
+      <featname/>
+      <feattarg/>
+    </rover>
+    <sample>
+      <strdepth/>
+      <endepth/>
+    </sample>
+    <ctrlnet>LOLA</ctrlnet>
+    <bittype/>
+    <scale/>
+    <bands/>
+    <wkt/>
+  </solarsys>
+  <metainfo>
+    <metd>20220414</metd>
+    <metc>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>USGS Astrogeology Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>2255 N. Gemini Drive</address>
+          <city>Flagstaff</city>
+          <state>AZ</state>
+          <postal>86001</postal>
+        </cntaddr>
+        <cntvoice>928-556-7011</cntvoice>
+        <cntemail>astroweb@usgs.gov</cntemail>
+      </cntinfo>
+    </metc>
+    <metsdn>FGDC Content Standard for Digital Geospatial Metadata</metsdn>
+    <metstdv>Modifided FGDC standard for use with planetary data</metstdv>
+    <mettc>local time</mettc>
+    <metextns>
+      <metprof>USGS Astrogeology Planetary Geoscience Metadata Standard</metprof>
+    </metextns>
+  </metainfo>
+</metadata>

@@ -1,0 +1,26 @@
+{
+  "title": "Unified Geologic Map of the Moon, 1:5M, 2020",
+  "date_pub": "20200303",
+  "origin": "USGS Astrogeology Science Center",
+  "url": "https://astrogeology.usgs.gov/search/map/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2",
+  "description": "This new work represents a seamless, globally consistent, 1:5,000,000-scale geologic map derived from \n the six digitally renovated geologic maps (see Source Online Linkage below). The goal of this project was to \ncreate a digital resource for science research and analysis, future geologic mapping efforts, be it local-, regional-, \nor global-scale products, and as a resource\n for the educators and the public interested in lunar geology. Here we present the completed mapping \n project as unit contacts, geologic unit polygons, linear features, and unit and feature nomenclature \n annotation. The product overlies shaded-relief products derived from SELENE Kaguya terrain camera stereo \n (equatorial, ~60 m/pix) and LOLA altimetry (north and south polar, 100 m/pix). These data are not \n included with this download due to size considerations, but a readme in the \"Lunar_Raster\" folder \n provides the download links. This download page includes a PDF of the geologic map (right-side) with a brief Description \n of Map Units and Explanation of Map Symbols, as well as a JPG of the map for quick access viewing.  This release is subject to update based on community feedback and peer-review.\n\n<b>Version 2 updates</b>: \nTwo errors were addressed in this update:\n(1) Large area polygons were offset from their contacts, likely due to user error. Polygons were rebuilt \nto fix the issue and post processing (dissolving, reattributing, etc.) to rectify the aesthetic of the map. \n(2) Contacts were not visible but should have been due to incorrect labeling as DND (do not draw). Those that \nneeded to be drawn have been reattributed as \"certain\" those that are not drawn are labeled as \"internal\".   \nAdditionally, in version 1 of this data, crater polygons with similar attributes had been dissolved and lumped \ninto contiguous units. This has been changed so that all craters are now discrete units. This adds ~1000 units \nto the GeoUnits featureclass and the related contacts are now visible and labeled as \"certain\".  \n\n\n<b>References:</b>\n\nFortezzo, C.M., Spudis, P. D. and Harrel, S. L. (2020). <em>Release of the Digital Unified Global Geologic Map of the Moon At 1:5,000,000- Scale.</em> Paper presented at the 51st Lunar and Planetary Science Conference, Lunar and Planetary Institute, Houston, TX. <a href='https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf' target='_blank'>https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf</a>",
+  "authors": [
+    "Fortezzo, C.M.",
+    "Spudis, P. D.",
+    "Harrel, S. L."
+  ],
+  "document_url": "https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf",
+  "status": "Complete",
+  "bounding_box": {
+    "westlon": -180.0,
+    "eastlon": 180.0,
+    "minlat": -90.0,
+    "maxlat": 90.0
+  },
+  "scope": [
+    "PGM",
+    "MRCTR"
+  ],
+  "browse": "http://astropedia.astrogeology.usgs.gov/download/Moon/Geology/thumbs/merc_Unified_Geologic_Map_of_The_Moon_1024.jpg",
+  "product_url": "http://astropedia.astrogeology.usgs.gov/download/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2.zip"
+}
