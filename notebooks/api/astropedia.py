@@ -27,7 +27,8 @@ def parse_astropedia_html(url:str) -> dict:
     """
     # Auxiliary function (TODO: move from here)
     def _parse_description(nodes):
-        return [ node.text.strip() for node in nodes ]
+        return '\n\n'.join([ node.text.strip() for node in nodes ])
+
     def _parse_authors(nodes):
         """
         Clean/Split the authors from 'text'.
@@ -61,8 +62,12 @@ def parse_astropedia_html(url:str) -> dict:
         for node in nodes:
             if node.text in _bbox:
                 out.update({ _bbox[node.text]: float(node.getnext().text) })
+
         return out
 
+    def _parse_date(nodes):
+        from datetime import datetime
+        return datetime.strptime(nodes[0].text, "%d %B %Y").date().isoformat()
 
     # Metadata mappings (ours x astropedia)
     #
@@ -74,7 +79,8 @@ def parse_astropedia_html(url:str) -> dict:
             description = {'path': 'p', 'proc': _parse_description },
 
             # pub_data
-            date_pub = {'path': 'dl[1]/dt[.="Publication Date"]/following-sibling::dd[1]'},
+            date_pub = {'path': 'dl[1]/dt[.="Publication Date"]/following-sibling::dd[1]',
+                        'proc': _parse_date},
 
             # authors
             authors = {'path': 'dl[1]/dt[.="Author"]/following-sibling::dd[1]',
@@ -87,7 +93,7 @@ def parse_astropedia_html(url:str) -> dict:
             document_url = {'path': '//dt[.="Supplemental Information"]/following-sibling::dd[1]/a'},
 
             # purpose
-            purpose = {'path': '//dt[text()="Purpose"]/following-sibling::dd[1]/p'},
+            # purpose = {'path': '//dt[text()="Purpose"]/following-sibling::dd[1]/p'},
 
             # bounding_box
             bounding_box = {'path': 'h2[text()="Geospatial Information"]//following-sibling::dl[1]/dt',
@@ -144,8 +150,9 @@ def parse_astropedia_html(url:str) -> dict:
     out_js = {}
     out_js.update(map_data(tmeta, _maps['meta']))
     out_js.update(map_data(theader, _maps['header']))
+    out_js.update({'url': url})
 
-    return out_js
+    return InvenioAstropedia(**out_js)
 
 
 def parse_astropedia_xml(url:str) -> dict:
@@ -224,12 +231,18 @@ def parse_astropedia_xml(url:str) -> dict:
 
         return authors
 
+
+    def _publication_date(date_string:str):
+        from dateutil.parser import isoparse
+        return isoparse(date_string).date().isoformat()
+
     # metadata mappings (ours: astropedia)
     #
     _meta = dict(
         title = {'path': 'metadata/idinfo/citation/citeinfo/title' },
 
-        date_pub = {'path': 'metadata/idinfo/citation/citeinfo/pubdate'},
+        date_pub = {'path': 'metadata/idinfo/citation/citeinfo/pubdate',
+                    'proc': _publication_date},
 
         origin = {'path': 'metadata/idinfo/citation/citeinfo/origin'},
 
@@ -302,19 +315,18 @@ def parse_astropedia_xml(url:str) -> dict:
     with open(f'{rootname}_OurMeta.json', 'w') as fp:
         json.dump(our_js, fp, indent=2)
 
-    return our_js
+    return InvenioAstropedia(**our_js)
 
 
 
-
-def parse_xml(url):
-    parsed_obj = parse_astropedia_xml(url)
-    return InvenioAstropedia(**parsed_obj)
-
-def parse_html(url):
-    parsed_obj = parse_astropedia_html(url)
-    parsed_obj.update({'url': url})
-    return InvenioAstropedia(**parsed_obj)
+# def parse_xml(url):
+#     parsed_obj = parse_astropedia_xml(url)
+#     return InvenioAstropedia(**parsed_obj)
+#
+# def parse_html(url):
+#     parsed_obj = parse_astropedia_html(url)
+#     parsed_obj.update({'url': url})
+#     return InvenioAstropedia(**parsed_obj)
 
 
 
@@ -330,9 +342,9 @@ class InvenioAstropedia:
     description: str
     authors: str
     document_url: str
-    status: str
+    # status: str
     bounding_box: dict
-    scope: str
+    # scope: str
     browse: str
     product_url: str
 
@@ -352,7 +364,7 @@ class InvenioAstropedia:
         from os import path
         files = {}
         for f in [self.document_url, self.browse]:
-            if f:
+            if f and any([f.endswith(ext) for ext in ('pdf','jpg','png','jpeg')]):
                 files.update({path.basename(f): f})
         self._files = files
 
@@ -411,10 +423,6 @@ class InvenioAstropedia:
                 out.append({'person_or_org': crt})
             return out
 
-        def _publication_date(date_string:str):
-            from dateutil.parser import isoparse
-            return isoparse(date_string).date().isoformat()
-
         def _description(description, **kwargs):
             description = description.replace('References:', '<b>References:</b>')
             if kwargs:
@@ -456,7 +464,7 @@ class InvenioAstropedia:
         payload = self._RECORD_TEMPLATE.copy()
         creators = _creators(self.authors)
         publisher = self.origin
-        publication_date = _publication_date(self.date_pub)
+        publication_date = self.date_pub
         resource_type = {'id': 'dataset'}
         title = self.title
         description = _description(

@@ -2,10 +2,10 @@
 Toolset to read/parse Astropedia product-page and to publish on InvenioRDM.
 
 """
-
 import json
 import requests
 from dataclasses import dataclass, asdict
+
 
 
 class InvenioRecords:
@@ -62,8 +62,6 @@ class InvenioClient:
         """
         Create draft (see publish_draft() for publishing it)
         """
-        assert isinstance(payload, InvenioAstropedia)
-
         # Create draft
         path_ext = '/records'
         data_record = payload.create_record_payload()
