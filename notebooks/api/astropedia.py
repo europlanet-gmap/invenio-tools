@@ -27,7 +27,12 @@ def parse_astropedia_html(url:str) -> dict:
     """
     # Auxiliary function (TODO: move from here)
     def _parse_description(nodes):
-        return '\n\n'.join([ node.text.strip() for node in nodes ])
+        text = []
+        for node in nodes:
+            text.append(node.text_content())
+            # if node.text:
+            #     text.append(node.text.strip())
+        return '\n\n'.join(text)
 
     def _parse_authors(nodes):
         """
@@ -39,11 +44,16 @@ def parse_astropedia_html(url:str) -> dict:
         """
         line = nodes[0].text.strip()
 
+        # if ',' not in line:
+        #     authors = [ line ]
+        # else:
+        #     authors = [ author.strip()
+        #                 for author in line.replace(' and ',',').split(',') ]
+        #     authors = [ author.split()[-1] + ', ' + ' '.join(author.split()[:-1])
+        #                 for author in authors
+        #                 if author ]
         authors = [ author.strip()
                     for author in line.replace(' and ',',').split(',') ]
-        authors = [ author.split()[-1] + ', ' + ' '.join(author.split()[:-1])
-                    for author in authors
-                    if author ]
 
         return authors
 
@@ -103,7 +113,7 @@ def parse_astropedia_html(url:str) -> dict:
             browse = {'path': '//div[@class="downloads"]//a[.="Sample"]', 'proc': _parse_href},
 
             # url_data
-            product_url = {'path': '//div[@class="downloads"]//a[.="Data"]' , 'proc': _parse_href},
+            product_url = {'path': '//div[@class="downloads"]//a[.="Data" or text()="Original"]' , 'proc': _parse_href},
         )
     )
 
@@ -401,20 +411,28 @@ class InvenioAstropedia:
         Return json data for InvenioRDM record draft
         (See https://inveniordm.docs.cern.ch/reference/rest_api_drafts_records
         """
+
         def _creators(authors:list, person_or_org:list=None):
             """
             Define list of creators (authors)
             """
+            import re
+
+            def is_org(name):
+                HINTS = ('center','centre','corporation','technology','science')
+                return any([ (word in name.lower()) for word in HINTS ])
+
             out = []
-            person_or_org = person_or_org if person_or_org else ['person']*len(authors)
-            for name,p_o in zip(authors,person_or_org):
-                if p_o == 'org':
+            for name in authors:
+                if is_org(name):
                     crt = {'name': f"{name}",
                             'type': 'organizational'
                           }
                 else:
-                    assert p_o == 'person'
-                    f_name, g_name = name.split(',')
+                    _name = re.sub('\(.*\)', '', name)
+                    _name = _name.split()
+                    f_name = _name[-1]
+                    g_name = ' '.join(_name[:-1])
                     crt = {'family_name': f"{f_name}",
                             'given_name': f"{g_name}",
                             'type': 'personal'
