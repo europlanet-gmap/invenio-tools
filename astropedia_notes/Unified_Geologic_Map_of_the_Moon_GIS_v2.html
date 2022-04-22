@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css" />
+  <title>Unified Geologic Map of the Moon, 1:5M, 2020 | USGS Astrogeology Science Center</title>
+  <meta name="description" content="This new work represents a seamless, globally consistent, 1:5,000,000-scale geologic map derived from
+ the six digitally&hellip;" />
+  <meta name="keywords" content="USGS,Astrogeology Science Center,Cartography,Geology,Space,Geological Survey,Mapping" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="google-site-verification" content="x61hXXVj7wtfBSNOPnTftajMsZ5yB2W-qRoyr7GtOKM" />
+  <link rel="stylesheet" media="screen" href="/css/main.css" />
+  <link rel="stylesheet" media="print" href="/css/print.css" />
+  <link rel="icon" type="image/x-ico" href="/favicon.ico" />
+</head>
+<body id="splashy">
+  <header>
+    <a href="https://www.usgs.gov/centers/astrogeo-sc" style="float:right;margin-top:10px;" target="_blank">
+      <img class="logo" height="60" src="/images/usgs_logo_main_2x.png" alt="USGS: Science for a Changing World" />
+    </a>
+    <a href="https://nasa.gov" style="float:right;margin-top:5px;margin-right:20px;" target="_blank">
+      <img class="logo" height="65" src="/images/logos/nasa-logo-web-med.png" alt="NASA" />
+    </a>
+    <a href="https://www.usgs.gov/centers/astrogeology-science-center/science/pds-cartography-and-imaging-sciences-node-usgs" style="float:right;margin-top:5px;margin-right: 10px;" target="_blank">
+      <img class="logo" height="65" src="/images/pds_logo-invisible-web.png" alt="PDS Cartography and Imaging Science Node" />
+    </a>
+  </header>
+  <div class="wrapper">
+    <div class="container">
+      <div class="widget block bar">
+        <a style="float:right;text-decoration:none;" href="/search">
+          <img style="width:200px;border:none;float:right;" src="/images/astropedia/astropedia-logo-main.png" alt="Astropedia" />
+          <div style="clear:both;font-size:.8em;float:right;color:#888;">Lunar and Planetary Cartographic Catalog</div>
+        </a>
+        <div style="float:left;height:60px;">
+          <a class="access-logo bigger" href="https://www.usgs.gov/centers/astrogeo-sc/science/mrctr-gis-lab"><img src="/images/logos/mrctr-button.png" alt="MRCTR GIS Lab" /></a> </div>
+      </div>
+      <div id="wide-image" class="wide-image-wrapper ">
+        <div class="downloads">
+          <img class="thumb" src="/cache/images/ff64573c1c8e4e8e7669644f185c0589_Unified_Geologic_Map_of_The_Moon_100.jpg" />
+          <h3>Download</h3>
+          <ul>
+            <li><a target="_blank" href="https://astropedia.astrogeology.usgs.gov/download/Moon/Geology/thumbs/Unified_Geologic_Map_of_The_Moon_200dpi.jpg">Maximum Size</a> (jpg) </li>
+            <li><a target="_blank" href="https://astropedia.astrogeology.usgs.gov/download/Moon/Geology/thumbs/merc_Unified_Geologic_Map_of_The_Moon_1024.jpg">Sample</a> (jpg) 1024px wide</li>
+            <li><a target="_blank" href="https://astropedia.astrogeology.usgs.gov/download/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2.zip">Data</a> (zip) 214 MB</li>
+          </ul>
+        </div>
+        <img class="wide-image" src="/cache/images/e50e5d643899eb163556c03ec4f05082_merc_Unified_Geologic_Map_of_The_Moon_1024.jpg" />
+        <a id="wide-image-toggle" class="open-toggle" href="#open">Open</a>
+      </div>
+      <div class="content">
+        <section class="block metadata">
+          <h2 class="title">Unified Geologic Map of the Moon, 1:5M, 2020</h2>
+          <p>This new work represents a seamless, globally consistent, 1:5,000,000-scale geologic map derived from
+            the six digitally renovated geologic maps (see Source Online Linkage below). The goal of this project was to
+            create a digital resource for science research and analysis, future geologic mapping efforts, be it local-, regional-,
+            or global-scale products, and as a resource
+            for the educators and the public interested in lunar geology. Here we present the completed mapping
+            project as unit contacts, geologic unit polygons, linear features, and unit and feature nomenclature
+            annotation. The product overlies shaded-relief products derived from SELENE Kaguya terrain camera stereo
+            (equatorial, ~60 m/pix) and LOLA altimetry (north and south polar, 100 m/pix). These data are not
+            included with this download due to size considerations, but a readme in the "Lunar_Raster" folder
+            provides the download links. This download page includes a PDF of the geologic map (right-side) with a brief Description
+            of Map Units and Explanation of Map Symbols, as well as a JPG of the map for quick access viewing. This release is subject to update based on community feedback and peer-review.</p>
+          <p><b>Version 2 updates</b>:
+            Two errors were addressed in this update:
+            (1) Large area polygons were offset from their contacts, likely due to user error. Polygons were rebuilt
+            to fix the issue and post processing (dissolving, reattributing, etc.) to rectify the aesthetic of the map.
+            (2) Contacts were not visible but should have been due to incorrect labeling as DND (do not draw). Those that
+            needed to be drawn have been reattributed as "certain" those that are not drawn are labeled as "internal".
+            Additionally, in version 1 of this data, crater polygons with similar attributes had been dissolved and lumped
+            into contiguous units. This has been changed so that all craters are now discrete units. This adds ~1000 units
+            to the GeoUnits featureclass and the related contacts are now visible and labeled as "certain". </p>
+          <p>
+            <b>References:</b></p>
+          <p>Fortezzo, C.M., Spudis, P. D. and Harrel, S. L. (2020). <em>Release of the Digital Unified Global Geologic Map of the Moon At 1:5,000,000- Scale.</em> Paper presented at the 51st Lunar and Planetary Science Conference, Lunar and
+            Planetary Institute, Houston, TX. <a href='https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf' target='_blank'>https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf</a></p>
+          <dl>
+            <dt>Mimetype</dt>
+            <dd>application/zip</dd>
+            <dt>Filename</dt>
+            <dd><a href="https://astropedia.astrogeology.usgs.gov/download/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2.zip">Unified_Geologic_Map_of_the_Moon_GIS_v2.zip</a></dd><dt>Publisher</dt>
+            <dd>Astrogeology</dd><dt>Publication Date</dt>
+            <dd>3 March 2020</dd><dt>Author</dt>
+            <dd>Corey M. Fortezzo (USGS), Paul D. Spudis (LPI), Shannon L. Harrel (SD Mines)</dd><dt>Originator</dt>
+            <dd>USGS Astrogeology Science Center</dd><dt>Group</dt>
+            <dd>PGM, MRCTR</dd><dt>Added to Astropedia</dt>
+            <dd>19 December 2019</dd><dt>Modified</dt>
+            <dd>8 June 2021</dd>
+          </dl>
+          <h2>General</h2>
+          <dl><dt>Purpose</dt>
+            <dd>
+              <p>The chief purpose of the 5M scale map is to summarize the current state of lunar geologic knowledge. Like terrestrial synoptic maps it provides a stratigraphic framework to be used for developing new theory and for determining the
+                regional significance of surface exploration results. In addition to serving as a framework for interpreting surface exploration results, the effort to classify units into type and age by photogeology narrows the range of possible
+                origins for many features.</p>
+            </dd><dt>Geospatial Data Presentation Form</dt>
+            <dd><a href="/search/results?k1=geospatial_data_presentation_form&v1=Geologic+Map">Geologic Map</a></dd><dt>Edition</dt>
+            <dd>2.0, March 3, 2020</dd><dt>Native Data Set Environment</dt>
+            <dd><a href="http://www.esri.com/software/arcgis/arcgis-for-desktop">ESRI Arcinfo</a></dd><dt>Color</dt>
+            <dd>Color</dd><dt>Supplemental Information</dt>
+            <dd><a target="_blank" href="https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf">https://www.hou.usra.edu/meetings/lpsc2020/pdf/2760.pdf</a></dd>
+          </dl>
+          <h2>Keywords</h2>
+          <dl><dt>System</dt>
+            <dd><a href="/search?pmi-target=earth">Earth</a></dd><dt>Target</dt>
+            <dd><a href="/search?pmi-target=moon">Moon</a></dd><dt>Mission</dt>
+            <dd><a href="/search/results?k1=mission&v1=Lunar+Reconnaissance+Orbiter">Lunar Reconnaissance Orbiter</a>, <a href="/search/results?k1=mission&v1=Kaguya">Kaguya</a></dd><dt>Mission Specific</dt>
+            <dd></dd><dt>Instrument</dt>
+            <dd><a href="/search/results?k1=instrument&v1=LOLA">LOLA</a>, <a href="/search/results?k1=instrument&v1=TC">TC</a>, <a href="/search/results?k1=instrument&v1=SELENE">SELENE</a></dd><dt>Search Terms</dt>
+            <dd>geology, structure, , basin rings, contacts, units, moon, lunar, selene, 5 Million Scale, global</dd>
+          </dl>
+          <h2>Contact and Distribution</h2>
+          <dl><dt>Access Constraints</dt>
+            <dd>none</dd><dt>Access Instructions</dt>
+            <dd>GIS software will be required to view the files.</dd><dt>Use Constraints</dt>
+            <dd>please cite authors</dd>
+          </dl>
+          <h2>Data Status and Quality</h2>
+          <dl><dt>Currentness Reference</dt>
+            <dd>Publication date</dd><dt>Progress</dt>
+            <dd>Complete</dd><dt>Update Frequency</dt>
+            <dd>As needed</dd><dt>Logical Consistency Report</dt>
+            <dd>These maps are updated and sometimes a reinterpretation of the original geologic units or relationships.</dd><dt>Completeness Report</dt>
+            <dd>
+              <p>This release is globally produced at a 5M scale.</p>
+            </dd><dt>Process Description</dt>
+            <dd>
+              <p>The current renovation of the digital maps adhered to strict guidelines for vector generation and used recent datasets to spatially adjust the location of the geology and linework. The data sets discussed above were used in
+                combination with ESRI’s ArcMap Geographic Information System (GIS) software, to draw vectors on the shaded-relief derived from SELENE Kaguya terrain camera stereo (equatorial, ~60 m/pix) and LOLA altimetry (north and south polar, 100
+                m/pix). The vectors were drawn with a consistent vertex spacing of ~3 km at 1:1.5M scale, and were smoothed using a maximum allowable offset tolerance of ~16 km. The adjustments and adherence to these guidelines resulted in a product
+                that increased the feature location accuracy at the 1:5M scale and makes the product more cartographically appealing.</p>
+            </dd><dt>Horizontal Positional Accuracy Value</dt>
+            <dd>500</dd><dt>Horizontal Positional Accuracy Report</dt>
+            <dd>Accurate to Control Net</dd><dt>Entity and Attribute Detailed Description</dt>
+            <dd>Brief units are described in the released PDF map.</dd>
+          </dl>
+          <h2>Lineage</h2>
+          <dl><dt>Source Originator</dt>
+            <dd>U. S. geological Survey</dt><dt>Source Publication Date</dt>
+            <dd>1 March 2013</dd><dt>Source Title</dt>
+            <dd>1:5M Lunar Geologic Map Series</dd><dt>Source Online Linkage</dt>
+            <dd><a target="_blank" href="https://astrogeology.usgs.gov/search/map/Moon/Geology/Lunar_Geologic_GIS_Renovation_March2013">https://astrogeology.usgs.gov/search/map/Moon/Geology/Lunar_Geologic_GIS_Renovation_March2013</a></dd><dt>Type of
+              Source Media</dt>
+            <dd>Online</dd><dt>Attribute Accuracy Report</dt>
+            <dd>Best Effort</dd>
+          </dl>
+          <h2>Geospatial Information</h2>
+          <dl><dt>Location Description</dt>
+            <dd>The Moon</dd><dt>Minimum Latitude</dt>
+            <dd>-90</dd><dt>Maximum Latitude</dt>
+            <dd>90</dd><dt>Minimum Longitude</dt>
+            <dd>-180</dd><dt>Maximum Longitude</dt>
+            <dd>180</dd><dt>Direct Spatial Reference Method</dt>
+            <dd>Vector</dd><dt>Object Type</dt>
+            <dd>Polygon</dd><dt>Radius A</dt>
+            <dd>1737400</dd><dt>Radius C</dt>
+            <dd>1737400</dd><dt>Control Net</dt>
+            <dd>LOLA</dd><dt>Horizontal Coordinate System Units</dt>
+            <dd>Meters</dd><dt>Map Projection Name</dt>
+            <dd>Mercator</dd><dt>Latitude Type</dt>
+            <dd>Planetocentric</dd><dt>Longitude Direction</dt>
+            <dd>Positive East</dd><dt>Longitude Domain</dt>
+            <dd>-180 to 180</dd>
+          </dl>
+        </section>
+      </div>
+      <div class="sidebar">
+        <div class="block">
+          <h3 class="title">FGDC: <a href="#" style="text-decoration:none;" id="fgdcLink" download>xml metadata</a></h3>
+          <script>
+            var currentURL = window.location.href + '.xml';
+            document.getElementById('fgdcLink').href = currentURL;
+          </script>
+        </div>
+        <div class="block">
+          <h3 class="title">Ancillary Data</h3>
+          <ul class="listing">
+            <li><a target="_blank" href="https://astropedia.astrogeology.usgs.gov/download/Moon/Geology/Ancillary/Unified_Geologic_Map_of_The_Moon.pdf">Unified Lunar Geology Map of the Moon</a><span> (pdf) 712 MB</span></li>
+            <li><a target="_blank" href="https://astropedia.astrogeology.usgs.gov/download/Moon/Geology/Ancillary/Unified_Geologic_Map_of_the_Moon_RASTER.zip">Unified_Geologic_Map_of_the_Moon_RASTER.zip</a><span> (zip) 35 MB</span></li>
+          </ul>
+        </div>
+        <div class="block">
+          <h3 class="title">Related Products</h3>
+          <a href="/search/map/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2" class="item">
+            <img class="thumb description-thumb" src="/cache/images/ff64573c1c8e4e8e7669644f185c0589_Unified_Geologic_Map_of_The_Moon_100.jpg" alt="Unified Geologic Map of the Moon, 1:5M, 2020 thumbnail" />
+            <div class="description">
+              <h3>Unified Geologic Map of the Moon, 1:5M, 2020</h3>
+              <p>This new work represents a seamless, globally consistent,&hellip;</p>
+            </div>
+          </a>
+          <a href="/search/map/Moon/Geology/Lunar_Geologic_GIS_Renovation_March2013" class="item">
+            <img class="thumb description-thumb" src="/cache/images/2c0f141b9f49d10fa7141c5d55e6bfbf_LunarGeologic_Renovation_thumb.jpg" alt="Lunar 1:5M Geologic Map Renovation, 2013 thumbnail" />
+            <div class="description">
+              <h3>Lunar 1:5M Geologic Map Renovation, 2013</h3>
+              <p>These maps are a series of geologic maps that cover the entire Moon&hellip;</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="icons projects black scroll-wrapper">
+      <div class="scroll">
+        <a title="Integrated Software for Imagers and Spectrometers" href="http://isis.astrogeology.usgs.gov" class="icon">
+          <img alt="ISIS Logo" height="112" width="112" src="/images/logos/isis_2x.jpg" />
+          <span class="label">ISIS</span>
+        </a>
+        <a title="Gazetteer of Planetary Nomenclature" href="http://planetarynames.wr.usgs.gov" class="icon">
+          <img alt="Nomenclature Logo" height="112" width="112" src="/images/logos/nomenclature_2x.jpg" />
+          <span class="label">Planetary Nomenclature</span>
+        </a>
+        <a title="Map a Planet 2" href="https://astrogeology.usgs.gov/tools/map-a-planet-2" class="icon">
+          <img alt="Map-a-Planet Logo" height="112" width="112" src="/images/logos/map_a_planet_2x.jpg" />
+          <span class="label">Map a Planet 2</span>
+        </a>
+        <a title="PDS Cartography and Imaging Science Node" href="https://www.usgs.gov/centers/astrogeo-sc/science/cartography-and-imaging-sciences-node-nasa-planetary-data-system" class="icon">
+          <img alt="PDS Logo" height="112" src="/images/pds_logo-black-web.png" />
+          <span class="label">PDS Cartography and Imaging Science Node</span>
+        </a>
+        <a title="Regional Planetary Image Facility" href="https://www.usgs.gov/centers/astrogeo-sc/science/regional-planetary-image-facility-rpif" class="icon">
+          <img alt="RPIF Logo" height="112" width="112" src="/images/logos/rpif_2x.jpg" />
+          <span class="label">RPIF</span>
+        </a>
+        <a title="Photogrammetry Guest Facility" href="" class="icon">
+          <img alt="Photogrammetry Guest Faciltiy Logo" height="112" width="112" src="/images/logos/photogrammetry_2x.jpg" />
+          <span class="label">Photogrammetry Guest Facility</span>
+        </a>
+        <a title="Planetary Image Locator Tool" href="http://pilot.wr.usgs.gov" class="icon">
+          <img alt="Pilot Logo" height="112" width="112" src="/images/logos/pilot_2x.jpg" />
+          <span class="label">PILOT</span>
+        </a>
+        <a title="Mapping, Remote-sensing, Cartography, Technology and Research GIS Lab" href="https://www.usgs.gov/centers/astrogeo-sc/science/mrctr-gis-lab" class="icon">
+          <img alt="MRCTR GIS Lab Logo" height="112" width="112" src="/images/logos/mrctr_man_2x.png" />
+          <span class="label">MRCTR GIS Lab</span>
+        </a>
+      </div>
+    </div>
+    <footer>
+      <div class="left">
+        <a href="./search">Search</a> |
+        <a href="http://astrogeology.usgs.gov/maps/about">About</a> |
+        <a href="http://astrogeology.usgs.gov/maps/contact">Contact</a>
+      </div>
+      <div class="right">
+        <a href="https://www.usgs.gov/centers/astrogeo-sc">USGS Astrogeology Science Center</a>
+      </div>
+    </footer>
+  </div>
+  <div class="page-background" style="
+			background:url('/images/backgrounds/mars.jpg');
+			filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(
+				src='/images/backgrounds/mars.jpg', sizingMethod='scale');
+		"></div>
+  <script type="text/javascript">
+    var baseUrl = "";
+  </script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script type="text/javascript" src="//code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="https://astropedia.astrogeology.usgs.gov/downloadWeb/dynamic/glossary.js"></script>
+  <script type="text/javascript" src="/js/astro-tips.js"></script>
+  <script type="text/javascript" src="/js/general.js"></script>
+  <script type="text/javascript">
+    showTooltips(".downloads, .content dl, .listing", true);
+  </script>
+</body>
+
+</html>
