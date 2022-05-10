@@ -165,178 +165,167 @@ def parse_astropedia_html(url:str) -> dict:
     return InvenioAstropedia(**out_js)
 
 
-def parse_astropedia_xml(url:str) -> dict:
-    """
-    Parse Astropedias product/map xml from 'url'
-
-    Example url:
-    https://astrogeology.usgs.gov/search/map/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2.xml
-    """
-    import xmltodict
-
-    xml_file = path.basename(url)
-    rootname = '.'.join(xml_file.split('.')[:-1])
-
-    # Get the XML from 'url'
-    #
-    res = requests.get(url)
-    res.raise_for_status()
-
-    # Save it, for convenience, in local directory
-    #
-    result = res.text
-    with open(xml_file, 'w') as fp:
-        fp.write(result)
-
-    # Transform to JSON (simpler to handle)
-    #
-    js = xmltodict.parse(res.text)
-
-    # Define structure to map between "theirs" (astropedia), and "ours" (invenio).
-    # Let's define it as a dictionary of fields we want to fill from input object,
-    # the input is the JSON object from Astropedia's XML.
-    # Auxiliary, some individual functions to process the data values during mapping.
-    #
-    _clean_CDATA = lambda s: s.replace('![[CDATA]', '').replace(']]','')
-    """Remove "![[CDATA].*]]' from string"""
-
-    def _parse_bbox(bbox):
-        """Map astropedia's bounding-box fields to ours"""
-        _bbox = {
-            'westlon': 'westbc',
-            'eastlon': 'eastbc',
-            'minlat': 'southbc',
-            'maxlat': 'northbc'
-        }
-        return { k:float(bbox[v]) for k,v in _bbox.items() }
-
-    _split_sep = lambda s,sep=',': [w.strip() for w in s.split(sep)]
-    """Return a list of comma-separated terms (Ex: 'ABC, XYZ')"""
-
-    def _parse_authors(text):
-        """
-        Clean/Split the authors from 'text'.
-        (Ex: ...\n<b>References:</b>\n\nLastname, N.I., Lastname, N.I. and Lastname, N.I. (2020)...
-        """
-        refs = []
-        flag = False
-        for line in text.split('\n'):
-            line = line.strip()
-            if line == '':
-                continue
-            if 'References:' in line:
-                flag = True
-                continue
-            if flag:
-                refs.append(line)
-
-        authors = []
-        for line in refs:
-            l_authors = line.split('(')[0]
-            _authors = [ a2 for a1 in _split_sep(l_authors, ' and ')
-                            for a2 in _split_sep(a1, ',') ]
-            _authors = [ f"{_authors[i-1]}, {_authors[i]}"
-                            for i in range(1,len(_authors),2) ]
-            authors.extend(_authors)
-
-        return authors
-
-
-    def _publication_date(date_string:str):
-        from dateutil.parser import isoparse
-        return isoparse(date_string).date().isoformat()
-
-    # metadata mappings (ours: astropedia)
-    #
-    _meta = dict(
-        title = {'path': 'metadata/idinfo/citation/citeinfo/title' },
-
-        date_pub = {'path': 'metadata/idinfo/citation/citeinfo/pubdate',
-                    'proc': _publication_date},
-
-        origin = {'path': 'metadata/idinfo/citation/citeinfo/origin'},
-
-        description = {'path': 'metadata/idinfo/descript/abstract',
-                       'proc': _clean_CDATA },
-
-        authors = {'path': 'metadata/idinfo/descript/abstract',
-                   'proc': _parse_authors },
-
-        document_url = {'path': 'metadata/idinfo/descript/supplinf',
-                        'proc': _clean_CDATA },
-
-        status = {'path': 'metadata/idinfo/status/progress' },
-
-        bounding_box = {'path': 'metadata/idinfo/spdom/bounding',
-                        'proc': _parse_bbox },
-
-        scope = {'path': 'metadata/idinfo/accscope',
-                 'proc': _split_sep },
-
-        browse = {'path': 'metadata/idinfo/browse/browsen'},
-
-        product_url = {'path': 'metadata/distinfo/stdorder/digform/digtopt/onlinopt/computer/networka/networkr' }
-    )
-
-
-    # Function to do the whole thing
-    #
-    def map_jsons(js:dict, mappings:dict):
-        """
-        Return object like 'mappings', with values from (astropedia) 'js'
-
-        Ex:
-        > js = {'key1': {'key2': "val"}}
-        > mappings = {
-        >     'my_key1' : dict(path='key1/key2', proc=lambda s:s.upper()),
-        >     'my_key2' : dict(path='key1/key2')
-        > }
-        > map_jsons(js, mappings)
-        # {'my_key1': 'VAL', 'my_key2': 'val'}
-        """
-        def _map(js, obj):
-            """
-            Return value of key at the leaf of "obj['path']",
-            (optional) processed by "obj['proc']()" (if available)
-            """
-            val = js
-            for node in obj['path'].split('/'):
-                val = val[node]
-
-            out = val
-            if 'proc' in obj:
-                out = obj['proc'](val)
-
-            return out
-
-        out = {}
-        for keyword, mapping in mappings.items():
-            value = _map(js, mapping)
-            out.update({ keyword: value })
-
-        return out
-
-    our_js = map_jsons(js, _meta)
-    # our_js
-
-    with open(f'{rootname}.json', 'w') as fp:
-        json.dump(js, fp, indent=2)
-
-    with open(f'{rootname}_OurMeta.json', 'w') as fp:
-        json.dump(our_js, fp, indent=2)
-
-    return InvenioAstropedia(**our_js)
-
-
-
-# def parse_xml(url):
-#     parsed_obj = parse_astropedia_xml(url)
-#     return InvenioAstropedia(**parsed_obj)
+# def parse_astropedia_xml(url:str) -> dict:
+#     """
+#     Parse Astropedias product/map xml from 'url'
 #
-# def parse_html(url):
-#     parsed_obj = parse_astropedia_html(url)
-#     parsed_obj.update({'url': url})
-#     return InvenioAstropedia(**parsed_obj)
+#     Example url:
+#     https://astrogeology.usgs.gov/search/map/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2.xml
+#     """
+#     import xmltodict
+#
+#     xml_file = path.basename(url)
+#     rootname = '.'.join(xml_file.split('.')[:-1])
+#
+#     # Get the XML from 'url'
+#     #
+#     res = requests.get(url)
+#     res.raise_for_status()
+#
+#     # Save it, for convenience, in local directory
+#     #
+#     result = res.text
+#     with open(xml_file, 'w') as fp:
+#         fp.write(result)
+#
+#     # Transform to JSON (simpler to handle)
+#     #
+#     js = xmltodict.parse(res.text)
+#
+#     # Define structure to map between "theirs" (astropedia), and "ours" (invenio).
+#     # Let's define it as a dictionary of fields we want to fill from input object,
+#     # the input is the JSON object from Astropedia's XML.
+#     # Auxiliary, some individual functions to process the data values during mapping.
+#     #
+#     _clean_CDATA = lambda s: s.replace('![[CDATA]', '').replace(']]','')
+#     """Remove "![[CDATA].*]]' from string"""
+#
+#     def _parse_bbox(bbox):
+#         """Map astropedia's bounding-box fields to ours"""
+#         _bbox = {
+#             'westlon': 'westbc',
+#             'eastlon': 'eastbc',
+#             'minlat': 'southbc',
+#             'maxlat': 'northbc'
+#         }
+#         return { k:float(bbox[v]) for k,v in _bbox.items() }
+#
+#     _split_sep = lambda s,sep=',': [w.strip() for w in s.split(sep)]
+#     """Return a list of comma-separated terms (Ex: 'ABC, XYZ')"""
+#
+#     def _parse_authors(text):
+#         """
+#         Clean/Split the authors from 'text'.
+#         (Ex: ...\n<b>References:</b>\n\nLastname, N.I., Lastname, N.I. and Lastname, N.I. (2020)...
+#         """
+#         refs = []
+#         flag = False
+#         for line in text.split('\n'):
+#             line = line.strip()
+#             if line == '':
+#                 continue
+#             if 'References:' in line:
+#                 flag = True
+#                 continue
+#             if flag:
+#                 refs.append(line)
+#
+#         authors = []
+#         for line in refs:
+#             l_authors = line.split('(')[0]
+#             _authors = [ a2 for a1 in _split_sep(l_authors, ' and ')
+#                             for a2 in _split_sep(a1, ',') ]
+#             _authors = [ f"{_authors[i-1]}, {_authors[i]}"
+#                             for i in range(1,len(_authors),2) ]
+#             authors.extend(_authors)
+#
+#         return authors
+#
+#
+#     def _publication_date(date_string:str):
+#         from dateutil.parser import isoparse
+#         return isoparse(date_string).date().isoformat()
+#
+#     # metadata mappings (ours: astropedia)
+#     #
+#     _meta = dict(
+#         title = {'path': 'metadata/idinfo/citation/citeinfo/title' },
+#
+#         date_pub = {'path': 'metadata/idinfo/citation/citeinfo/pubdate',
+#                     'proc': _publication_date},
+#
+#         origin = {'path': 'metadata/idinfo/citation/citeinfo/origin'},
+#
+#         description = {'path': 'metadata/idinfo/descript/abstract',
+#                        'proc': _clean_CDATA },
+#
+#         authors = {'path': 'metadata/idinfo/descript/abstract',
+#                    'proc': _parse_authors },
+#
+#         document_url = {'path': 'metadata/idinfo/descript/supplinf',
+#                         'proc': _clean_CDATA },
+#
+#         status = {'path': 'metadata/idinfo/status/progress' },
+#
+#         bounding_box = {'path': 'metadata/idinfo/spdom/bounding',
+#                         'proc': _parse_bbox },
+#
+#         scope = {'path': 'metadata/idinfo/accscope',
+#                  'proc': _split_sep },
+#
+#         browse = {'path': 'metadata/idinfo/browse/browsen'},
+#
+#         product_url = {'path': 'metadata/distinfo/stdorder/digform/digtopt/onlinopt/computer/networka/networkr' }
+#     )
+#
+#
+#     # Function to do the whole thing
+#     #
+#     def map_jsons(js:dict, mappings:dict):
+#         """
+#         Return object like 'mappings', with values from (astropedia) 'js'
+#
+#         Ex:
+#         > js = {'key1': {'key2': "val"}}
+#         > mappings = {
+#         >     'my_key1' : dict(path='key1/key2', proc=lambda s:s.upper()),
+#         >     'my_key2' : dict(path='key1/key2')
+#         > }
+#         > map_jsons(js, mappings)
+#         # {'my_key1': 'VAL', 'my_key2': 'val'}
+#         """
+#         def _map(js, obj):
+#             """
+#             Return value of key at the leaf of "obj['path']",
+#             (optional) processed by "obj['proc']()" (if available)
+#             """
+#             val = js
+#             for node in obj['path'].split('/'):
+#                 val = val[node]
+#
+#             out = val
+#             if 'proc' in obj:
+#                 out = obj['proc'](val)
+#
+#             return out
+#
+#         out = {}
+#         for keyword, mapping in mappings.items():
+#             value = _map(js, mapping)
+#             out.update({ keyword: value })
+#
+#         return out
+#
+#     our_js = map_jsons(js, _meta)
+#     # our_js
+#
+#     with open(f'{rootname}.json', 'w') as fp:
+#         json.dump(js, fp, indent=2)
+#
+#     with open(f'{rootname}_OurMeta.json', 'w') as fp:
+#         json.dump(our_js, fp, indent=2)
+#
+#     return InvenioAstropedia(**our_js)
 
 
 
