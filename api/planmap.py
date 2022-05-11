@@ -45,6 +45,9 @@ from dataclasses import dataclass, asdict
 
 
 
+ALLOWED_EXTS = ('pdf','jpg','jpeg','png','zip')
+
+
 def parse_readme_url(url):
     res = requests.get(url)
     readme = res.text
@@ -55,12 +58,30 @@ def parse_readme_url(url):
     return _parse_readme(readme, _zip)
 
 
+def parse_package(pathdir):
+    from glob import glob
+    readme = None
+    docs_dir = None
+    for filepath in glob(f"{pathdir}/*"):
+        if path.basename(filepath).lower() == 'readme.md':
+            readme = filepath
+        if path.basename(filepath).lower() == 'document':
+            docs_dir = filepath
+
+    assert readme and docs_dir
+
+    payload = parse_readme_file(readme)
+    documents = glob(f"{docs_dir}/*")
+    payload.add_files(documents)
+
+    return payload
+
+
 def parse_readme_file(filename):
     with open(filename, 'r') as fp:
         readme = fp.read()
 
     _zip = os.path.dirname(filename) + '.zip'
-    print(_zip, os.path.exists(_zip))
     return _parse_readme(readme)
 
 
@@ -147,6 +168,24 @@ class BasePayload:
         return asdict(self)
     to_dict = asdict
 
+    def add_files(self, filenames):
+        def is_allowed_file(fname):
+            return any([fname.endswith(ext) for ext in ALLOWED_EXTS])
+
+        from os import path
+        files = self.files if self.files else {}
+        filelist = filenames if isinstance(filenames, (list,tuple)) else filenames.split(',')
+        for f in filelist:
+            if f and is_allowed_file(f):
+                files.update({path.basename(f): f})
+        self.files = files
+
+    def read_file(self, key):
+        filename = self.files[key]
+        with open(filename, 'rb') as fp:
+            data = fp.read()
+        return data
+
     def create_record_payload(self):
         payload = {
             "access": {
@@ -169,11 +208,9 @@ class BasePayload:
 
         return payload
 
-
     def create_files_payload(self):
         payload = []
         return payload
-
 
 
 class InvenioPlanmap(BasePayload):
@@ -226,29 +263,32 @@ class InvenioPlanmap(BasePayload):
             return out
 
         def _description(description, **kwargs):
-            # description = description.replace('References:', '<b>References:</b>')
-            # if kwargs:
-            #     sup_info = "\n<b>Extra:</b>\n"
-            #     sup_info += "<ul>"
-            #     for k,v in kwargs.items():
-            #         if k == 'bounding_box':
-            #             _sub = "Bounding-Box:"
-            #             _sub += "<ul>"
-            #             _sub += ("<li>"
-            #                      f"{', '.join(str(k_)+' = '+str(v_) for k_,v_ in v.items())}"
-            #                      "</li>")
-            #             _sub += "</ul>"
-            #         else:
-            #             _sub = f"{k.title().replace('_',' ')}:"
-            #             _sub += "<ul>"
-            #             if isinstance(v, str) and v.startswith('http'):
-            #                 _sub += f"<li><a href='{str(v)}'>{str(v)}</a></li>"
-            #             else:
-            #                 _sub += f"<li>{str(v)}</li>"
-            #             _sub += "</ul>"
-            #         sup_info += f"<li>{_sub}</li>"
-            #     sup_info += "</ul>"
-            #     description += sup_info
+            description = description.strip()
+            if not description.endswith('.'):
+                description += '.'
+
+            if kwargs:
+                sup_info = "\n<b>Spatial Information:</b>\n"
+                sup_info += "<ul>"
+                for k,v in kwargs.items():
+                    if k == 'bounding_box':
+                        _sub = "Bounding-Box:"
+                        _sub += "<ul>"
+                        _sub += ("<li>"
+                                 f"{', '.join(str(k_)+' = '+str(v_) for k_,v_ in v.items())}"
+                                 "</li>")
+                        _sub += "</ul>"
+                    else:
+                        _sub = f"{k.title().replace('_',' ')}:"
+                        _sub += "<ul>"
+                        if isinstance(v, str) and v.startswith('http'):
+                            _sub += f"<li><a href='{str(v)}'>{str(v)}</a></li>"
+                        else:
+                            _sub += f"<li>{str(v)}</li>"
+                        _sub += "</ul>"
+                    sup_info += f"<li>{_sub}</li>"
+                sup_info += "</ul>"
+                description += sup_info
             #
             # description = (description.replace('<b><b>', '<b>')
             #                           .replace('</b></b>', '</b>')
@@ -263,6 +303,19 @@ class InvenioPlanmap(BasePayload):
                 if v:
                     out.append({ 'scheme': k, 'identifier': v})
             return out
+
+        def _files(files_dict):
+            # Use order in ALLOWED_EXTS
+            files = list(files_dict.keys())
+            files.sort(key=lambda f:ALLOWED_EXTS.index(f.split('.')[-1].lower()))
+            d = {
+                'enabled': bool(len(files)),
+                'default_preview': [f for f in files if f.lower().endswith('pdf')][0],
+                'order': files
+            }
+            (d)
+            return d
+
 
         # payload = self._RECORD_TEMPLATE.copy()
         payload = super().create_record_payload()
@@ -279,7 +332,7 @@ class InvenioPlanmap(BasePayload):
             # product_page=self.url
         )
 
-        files = {'enabled': bool(len(self.files))}
+        files = _files(self.files)
         identifiers = _identifiers(self.identifiers)
 
         payload.update({

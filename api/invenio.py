@@ -4,6 +4,8 @@ Toolset to read/parse Astropedia product-page and to publish on InvenioRDM.
 """
 import json
 import requests
+
+from typing import List
 from dataclasses import dataclass, asdict
 
 
@@ -99,6 +101,12 @@ class InvenioClient:
         path_ext = f"/records/{draft_id}/draft"
         res = self._get(path_ext)
         return res.json()
+
+    # def add_files(self, draft_id:str, files:List[str]=None):
+    #     """
+    #     Upload files to draft 'id'
+    #     """
+    #     NotImplementedError
 
     def publish_draft(self, draft_id):
         """
