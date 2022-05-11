@@ -48,16 +48,6 @@ from dataclasses import dataclass, asdict
 ALLOWED_EXTS = ('pdf','jpg','jpeg','png','zip')
 
 
-def parse_readme_url(url):
-    res = requests.get(url)
-    readme = res.text
-
-    _url = '/'.join(url.split('/')[:-1])
-    _zip = _url.replace('/pub/','/zip/') + '.zip'
-
-    return _parse_readme(readme, _zip)
-
-
 def parse_package(pathdir):
     from glob import glob
     readme = None
@@ -75,6 +65,17 @@ def parse_package(pathdir):
     payload.add_files(documents)
 
     return payload
+
+
+def parse_readme_url(url):
+    res = requests.get(url)
+    readme = res.text
+
+    _url = '/'.join(url.split('/')[:-1])
+    _zip = _url.replace('/pub/','/zip/') + '.zip'
+
+    # return _parse_readme(readme, _zip)
+    return _parse_readme(readme)
 
 
 def parse_readme_file(filename):
@@ -104,12 +105,18 @@ def _parse_readme(readme, zip_package=None):
                     return bf
 
         bbox = {}
-        for field, value in table.items():
+        for field in list(table.keys()):
             if key := match_bbox(field):
+                value = table.pop(field)
                 bbox.update({ _bbox[key] : float(value) })
 
         return bbox
 
+    def _get_value(key, table):
+        for tk in list(table.keys()):
+            if key.lower() in tk.lower():
+                return table.pop(tk)
+        return None
 
     table = {}
     for line in readme.split('\n'):
@@ -121,27 +128,22 @@ def _parse_readme(readme, zip_package=None):
             continue
         table.update({ k: v })
 
-    _bbox = _parse_bbox(table)
-
-    # _zip =
-
     _meta = {
-        'name': table['Map name (PM_ID)'],
-        'body': table['Target body'],
-        'title': table['Title of map'],
-        'authors': table['Author(s)'].split(','),
-        'description': table['Short description'],
         'publisher': 'Planmap',
-        'pub_date': date.today().isoformat(),
-        'bounding_box': _bbox,
+        'name': _get_value('Map name (PM_ID)', table),
+        'body': _get_value('Target body', table),
+        'title': _get_value('Title of map', table),
+        'authors': _get_value('Author', table).split(','),
+        'description': _get_value('Short description', table),
+        'pub_date': _get_value('Publication date', table) or date.today().isoformat(),
         'identifiers': {
-            # 'url': _url,
-            'doi': table['DOI'],
+            'doi': _get_value('DOI', table),
         },
-        'files': {
-            # 'data': _zip,
-        }
+        'bounding_box': _parse_bbox(table),
+        'files': {}
     }
+
+    _meta.update({'extra': table})
 
     return InvenioPlanmap(**_meta)
 
@@ -157,11 +159,12 @@ class BasePayload:
     publisher: str
     description: str
     bounding_box: dict
-    name: str = None
-    body: str = None
-    # identifiers = {'url': 'https://.../path', 'doi': '123.45/6'}
+    name: str
+    body: str
+    extra: dict
+    # Example identifiers = {'url': 'https://.../path', 'doi': '123.45/6'}
     identifiers: dict = None
-    # files = {'browse': 'image.jpg', 'document': 'map.pdf', 'data': None}
+    # Example files = {'browse': 'image.jpg', 'document': 'map.pdf', 'data': None}
     files: dict = None
 
     def asdict(self):
@@ -267,34 +270,45 @@ class InvenioPlanmap(BasePayload):
             if not description.endswith('.'):
                 description += '.'
 
-            if kwargs:
-                sup_info = "\n<b>Spatial Information:</b>\n"
+            description = "<p>"+description+"</p>"
+
+            spatial_args = { k:kwargs.pop(k)
+                             for k in list(kwargs.keys())
+                             if k in ['bounding_box', 'body']}
+
+            if spatial_args:
+                sup_info = "\n<b>Spatial information:</b>\n"
                 sup_info += "<ul>"
-                for k,v in kwargs.items():
-                    if k == 'bounding_box':
-                        _sub = "Bounding-Box:"
-                        _sub += "<ul>"
-                        _sub += ("<li>"
+                for k,v in spatial_args.items():
+
+                    if k == 'body':
+                        _sub = ("<li>"
+                                 f"Target body: {v}"
+                                 "</li>")
+
+                    elif k == 'bounding_box':
+                        _sub = ("<li>"
+                                "Bounding-Box: "
                                  f"{', '.join(str(k_)+' = '+str(v_) for k_,v_ in v.items())}"
                                  "</li>")
-                        _sub += "</ul>"
-                    else:
-                        _sub = f"{k.title().replace('_',' ')}:"
-                        _sub += "<ul>"
-                        if isinstance(v, str) and v.startswith('http'):
-                            _sub += f"<li><a href='{str(v)}'>{str(v)}</a></li>"
-                        else:
-                            _sub += f"<li>{str(v)}</li>"
-                        _sub += "</ul>"
-                    sup_info += f"<li>{_sub}</li>"
+
+                    # sup_info += f"<li>{_sub}</li>"
+                    sup_info += _sub
+
                 sup_info += "</ul>"
                 description += sup_info
-            #
-            # description = (description.replace('<b><b>', '<b>')
-            #                           .replace('</b></b>', '</b>')
-            #                           .replace('<b>', '<p/><b>')
-            #                           .replace('\n\n', '<br>')
-            #                           .replace('\n',''))
+
+            if kwargs:
+                kwargs = kwargs['extra']
+                sup_info = f"\n<b>Ancillary information:</b>\n"
+                sup_info += "<ul>"
+                for k,v in kwargs.items():
+                    _sub = f"<li>{str(k)}: {str(v)}</li>"
+                    sup_info += _sub
+
+                sup_info += "</ul>"
+                description += sup_info
+
             return description
 
         def _identifiers(ids):
@@ -327,9 +341,10 @@ class InvenioPlanmap(BasePayload):
 
         creators = _creators(self.authors)
         description = _description(
-            description=self.description,
-            bounding_box=self.bounding_box,
-            # product_page=self.url
+                description=self.description,
+                bounding_box=self.bounding_box,
+                body=self.body,
+            extra=self.extra
         )
 
         files = _files(self.files)
