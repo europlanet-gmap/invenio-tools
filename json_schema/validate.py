@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import jsonschema
 
@@ -20,9 +22,8 @@ def read_schemas(basedir, pattern='*.schema.json'):
             print(f"Error loading JSON: '{fn}'")
             raise
         else:
-            # If the schema has no "$id" key, we adhoc push one: the filename,
-            # which is reasonable since this is the simplest, valid, and
-            # normally the way schemas will cross-reference each other.
+            # If schema has no "$id" key, add one: filename.
+            #
             _fn = os.path.basename(fn)
             if "$id" not in js:
                 js["$id"] = _fn # +"#"
@@ -66,3 +67,28 @@ def validate(payload, schema='invenio_draft.schema.json'):
     res = validator.validate(payload)
     # jsonschema.validate(data, schema_store[schema])
     return res
+
+
+def test_validate():
+    d = {'title': 'MapX from Ball', 'creators':[{'person_or_org': {'name': 'Acne', 'type': 'organizational'}}], 'publication_date': 2022, 'resource_type': 'dataset'}
+    return validate(d)
+
+
+def main(filename):
+    import json
+    with open(filename) as fp:
+        js = json.load(fp)
+    return validate(js)
+
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) < 2:
+        print("Validate file (json) content against (invenio_draft) schema", file=sys.stderr)
+        print(f"Usage: {sys.argv[0]} <filename.json>", file=sys.stderr)
+        sys.exit(1)
+
+    filename = sys.argv[1]
+    assert os.path.exists(filename)
+    main(filename)
+    sys.exit(0)

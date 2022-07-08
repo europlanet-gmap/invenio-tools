@@ -8,7 +8,15 @@
   "properties": {
     "title"      : { "type" : "string" },
     "creators"    : { "type" : "array",
-                      "items": { "$ref" : "person_or_org.schema.json#" }},
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "person_or_org": {
+                            "$ref" : "invenio.defs.schema.json#/definitions/person_or_org"
+                          }
+                        }
+                      }
+                    },
     "resource_type"   : { "type" : "string" },
     "publication_date"  : { "type" : "number" },
     "description": { "type": "string" }
