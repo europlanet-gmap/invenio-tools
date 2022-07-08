@@ -6,6 +6,7 @@
         "org": {
             "$comment": "Define org (in person_or_org) object",
             "$example": "{'name': 'Acne', 'type': 'organizational'}",
+
             "type" : "object",
             "properties": {
               "name": { "type" : "string" },
@@ -20,6 +21,7 @@
         "person": {
             "$comment": "Define person (in person_or_org) object",
             "$example": "{'given_name': 'Ze', 'family_name': 'Silva', type': 'personal'}",
+            
             "type" : "object",
             "properties": {
               "family_name": { "type" : "string" },
@@ -30,6 +32,13 @@
               "family_name",
               "given_name",
               "type"
+            ]
+        },
+
+        "person_or_org": {
+            "oneOf": [
+              { "$ref" : "#/definitions/person" },
+              { "$ref" : "#/definitions/org" }
             ]
         }
     }

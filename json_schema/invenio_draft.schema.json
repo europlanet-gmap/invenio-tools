@@ -8,17 +8,18 @@
   "type" : "object",
 
   "properties": {
-    "title"      : { "type" : "string" },
-    "creators"    : { "type" : "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "person_or_org": {
-                            "$ref" : "#/$defs/person_or_org"
-                          }
-                        }
-                      }
-                    },
+    "title": { "type" : "string" },
+    "creators": {
+      "type" : "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "person_or_org": {
+            "$ref" : "invenio.defs.schema.json#/definitions/person_or_org"
+          }
+        }
+      }
+    },
     "resource_type"   : { "type" : "string" },
     "publication_date"  : { "type" : "number" },
     "description": { "type": "string" }
@@ -29,15 +30,5 @@
     "creators",
     "resource_type",
     "publication_date"
-  ],
-
-  "$defs": {
-      "person_or_org": {
-          "oneOf": [
-              { "$ref" : "invenio.defs.schema.json#/definitions/person" },
-              { "$ref" : "invenio.defs.schema.json#/definitions/org" }
-          ]
-    }
-  }
-
+  ]
 }
