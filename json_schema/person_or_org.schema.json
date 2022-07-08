@@ -1,0 +1,25 @@
+{
+  "title": "InvenioRDM Person-or-Organization schema",
+  "$comment": "Define person_or_org object",
+  "$example": "{'name': 'Acne', 'type': 'organizational'}",
+
+  "type" : "object",
+
+  "properties": {
+    "person_or_org": {
+      "type": "object",
+      "properties": {
+        "name"      : { "type" : "string" },
+        "type"    : { "type" : "string" }
+      },
+      "required" : [
+        "name",
+        "type"
+      ]
+    }
+  },
+
+  "required" : [
+    "person_or_org"
+  ]
+}

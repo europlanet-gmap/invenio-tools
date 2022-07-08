@@ -1,0 +1,23 @@
+{
+  "title": "InvenioRDM draft API schema",
+  "$comment": "Define record-draft API payload ",
+  "$example": "{'title': 'MapX from Ball', 'creators':[{'person_or_org': {'name': 'Acne', 'type': 'organizational'}}], 'publication_date': 2022, 'resource_type': 'dataset'}",
+
+  "type" : "object",
+
+  "properties": {
+    "title"      : { "type" : "string" },
+    "creators"    : { "type" : "array",
+                      "items": { "$ref" : "person_or_org.schema.json#" }},
+    "resource_type"   : { "type" : "string" },
+    "publication_date"  : { "type" : "number" },
+    "description": { "type": "string" }
+  },
+
+  "required" : [
+    "title",
+    "creators",
+    "resource_type",
+    "publication_date"
+  ]
+}
