@@ -33,32 +33,34 @@ In such cases, we should find a compromise and arrange the relevant information
 somehow within records' fields.
 
 
-## InveioRDM metdata
+## InveioRDM metadata
 
 Inveio metadata available thourgh the graphical user interface and is API is
 fully described at https://inveniordm.docs.cern.ch/reference/metadata/#metadata.
 
 The metadata fields (mandatory and optional) of our interest are the following:
 
-| **Attribute** | **Attribute description** | **API document field**
-| --- | --- | --- |
-| Resource type* | The resource type id from the controlled vocabulary. | `resource_type = { id }` |
-| Creators* | Person or organization | `creators = [{ person_or_org }]` |
-| Title* | Package title | `title` | 
-| Publication_date* | Publication date in ISO8601 (eg, `2020-12-31`) | `publication_date` |
-| Additional title | Sub/Extra title | `additional_titles = [{ title, type }]` |
-| Description | Free HTML**/plain-text description | `description` |
-| Rights/Licenses | License name or statement | `rights = [{ id|title }]` |
-| Contributors | People or organisations contributing to the work | `contributors = [{ person_or_org, role }]` |
-| Subjects | Subject, keyword(s), classification code describing the resource | `sujects = [{ id|subject }]` | 
-| Publisher | Name of entity responsible for the publication. This property will be used to formulate the citation. (eg, `GMAP`) | `publisher` |
-| Alternate identifiers | Persistent identifiers for the resource (eg, DOI, Bidcode) | `identifiers = [{ identifier, scheme }]` |
-| Related works | Related resources used in the work (eg, DOI, Bidcode) | `related_identifiers = [{ identifier, scheme, relation_type, resource_type }]` |
-| Locations | GeoJSON geometry locating the map over the target | `locations = { features = { geometry, place }}` |
-| Funding | Project/Award funding the work | `funding = [{ funder|award }]` |
-| References | List of reference strings | `references = [{ reference }]` |
-| Files | List of files (image, tables, documents) content | `files = { enabled, entries, default_preview }` |
+| Attribute | type/CV | <div style="width:300px"><strong>Description</strong></div> | API document field
+| --- | --- | --- | --- |
+| Resource type* | CV | The resource type id from the controlled vocabulary. | `resource_type = { id }` |
+| Creators* | text | Person or organization | `creators = [{ person_or_org }]` |
+| Title* | text | Package title | `title` | 
+| Publication_date* | ISO8601 | Publication date in ISO8601 (eg, `2020-12-31`) | `publication_date` |
+| Additional title | text | Sub/Extra title | `additional_titles = [{ title, type }]` |
+| Description | text | Free HTML**/plain-text description | `description` |
+| Rights/Licenses | CV | License name or statement | `rights = [{ id|title }]` |
+| Contributors | text | People or organisations contributing to the work | `contributors = [{ person_or_org, role }]` |
+| Subjects | text | Subject, keyword(s), classification code describing the resource | `sujects = [{ id|subject }]` | 
+| Publisher | text | Name of entity responsible for the publication. This property will be used to formulate the citation. (eg, `GMAP`) | `publisher` |
+| Alternate identifiers | text/CV | Persistent identifiers for the resource (eg, DOI, Bidcode) | `identifiers = [{ identifier, scheme }]` |
+| Related works | text/CV | Related resources used in the work (eg, DOI, Bidcode) | `related_identifiers = [{ identifier, scheme, relation_type, resource_type }]` |
+| Locations | GeoJSON | GeoJSON geometry locating the map over the target | `locations = { features = { geometry, place }}` |
+| Funding | text | Project/Award funding the work | `funding = [{ funder|award }]` |
+| References | text | List of reference strings | `references = [{ reference }]` |
+| Files | | List of files (image, tables, documents) content | `files = { enabled, entries, default_preview }` |
 
+> `CV` stands for _controlled vocabulary_, meaning there is a list of values to choose from.
+> 
 > `*` are mandatory fields.
 >
 > `**` HTML tables are not rendered (as of IRDM v6)
@@ -97,6 +99,36 @@ GMAP packages metadata model:
 | Link to other data | Links to extenal resources |
 | Acknowledgements | Free-text acknowledge |
 
+
+### GMAP-Invenio metadata mapping
+
+To publish GMAP packages through Invenio we have to map the metadata models to represent the attributes properly.
+
+| **InvenioRDM** | **GMAP** | **Tranform** |
+| --- | --- | --- |
+| Resource type | "GMAP package" | `dataset` |
+| Creators | Authors | |
+| Title | Title of map | |
+| Additional title | Map name (GMAP_ID) | | 
+| Publication_date | | `today()` |
+| Description | Short description + SEE BELOW | |
+| Rights/Licenses | | `cc`|
+| Contributors | | |
+| Subjects | Aims | | 
+| Publisher | | `GMAP` |
+| Alternate identifiers | DOI of companion paper | |
+| Related works | Related products + Data used + Link to other data | |
+| Locations | Bounding box + (place) Target body | |
+| Funding | Acknowledgemennts | |
+| References | Heritage used + Standards adhered to | |
+| Files | _Raster, Vector, Document_ | |
+
+> GMAP unfit fields: "Type", "Output scale", "Original CRS", "Units definition (polygon styling)", "Stratigraphic info", "Other comments"
+
+#### Description
+
+The `Description` field in Invenio has to accommodate all the GMAP attribute the do not fit in IRDM model,
+and possibly repeat some (like Target, and Bounding-box) for clarity, besides GMAP's `Short description`. 
 
 
 ## Astropedia
