@@ -1,0 +1,47 @@
+{
+    "definitions": {
+
+        "point_coordinates": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "number"
+                }
+            ],
+            "minItems": 2,
+            "maxItems": 3
+        },
+
+        "line_coordinates": {
+            "type": "array",
+            "items": [
+                {
+                    "$ref": "#/definitions/point_coordinates"
+                }
+            ],
+            "minItems": 2
+        },
+
+        "polygon_coordinates": {
+            "type": "array",
+            "items": [
+                {
+                    "$ref": "#/definitions/line_coordinates"
+                },
+                { "minItems": 4 }
+            ]
+        },
+
+        "polygon_geometry": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "const": "Polygon"
+                },
+                "coordinates": {
+                    "$ref": "#/definitions/polygon_coordinates"
+                }
+            }
+        }
+    }
+}
