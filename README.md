@@ -1,6 +1,6 @@
 # InvenioRDM tools
 
-Repository for tools (Python, Bash, etc) around InvenioRDM (https://inveniordm.docs.cern.ch).
+Repository for tools (Python, Bash, etc) around InvenioRDM (Invenio or IRDM, https://inveniordm.docs.cern.ch).
 
 InvenioRDM provides an API the user can use to query, publish or update packages
 (see https://inveniordm.docs.cern.ch/reference/rest_api_index/).
@@ -31,6 +31,38 @@ targeted are relevant for data discovery, the set of metadata offered by Invenio
 records will not directly accommodate those attributes.
 In such cases, we should find a compromise and arrange the relevant information
 somehow within records' fields.
+
+
+## InveioRDM metdata
+
+Inveio metadata available thourgh the graphical user interface and is API is
+fully described at https://inveniordm.docs.cern.ch/reference/metadata/#metadata.
+
+The metadata fields (mandatory and optional) of our interest are the following:
+
+| **Attribute** | **Attribute description** | **API document field**
+| --- | --- | --- |
+| Resource type* | The resource type id from the controlled vocabulary. | `resource_type = { id }` |
+| Creators* | Person or organization | `creators = [{ person_or_org }]` |
+| Title* | Package title | `title` | 
+| Publication_date* | Publication date in ISO8601 (eg, `2020-12-31`) | `publication_date` |
+| Additional title | Sub/Extra title | `additional_titles = [{ title, type }]` |
+| Description | Free HTML**/plain-text description | `description` |
+| Rights/Licenses | License name or statement | `rights = [{ id|title }]` |
+| Contributors | People or organisations contributing to the work | `contributors = [{ person_or_org, role }]` |
+| Subjects | Subject, keyword(s), classification code describing the resource | `sujects = [{ id|subject }]` | 
+| Publisher | Name of entity responsible for the publication. This property will be used to formulate the citation. (eg, `GMAP`) | `publisher` |
+| Alternate identifiers | Persistent identifiers for the resource (eg, DOI, Bidcode) | `identifiers = [{ identifier, scheme }]` |
+| Related works | Related resources used in the work (eg, DOI, Bidcode) | `related_identifiers = [{ identifier, scheme, relation_type, resource_type }]` |
+| Locations | GeoJSON geometry locating the map over the target | `locations = { features = { geometry, place }}` |
+| Funding | Project/Award funding the work | `funding = [{ funder|award }]` |
+| References | List of reference strings | `references = [{ reference }]` |
+| Files | List of files (image, tables, documents) content | `files = { enabled, entries, default_preview }` |
+
+> `*` are mandatory fields.
+>
+> `**` HTML tables are not rendered (as of IRDM v6)
+
 
 
 ## GMAP metadata
