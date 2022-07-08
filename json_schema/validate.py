@@ -78,7 +78,9 @@ def main(filename):
     import json
     with open(filename) as fp:
         js = json.load(fp)
-    return validate(js)
+    res = validate(js)
+    print('Looks good.')
+    return res
 
 
 if __name__ == '__main__':

@@ -1,4 +1,6 @@
 {
+  "$id": "geometry.defs.schema.json",
+
     "definitions": {
 
         "latitude": {
