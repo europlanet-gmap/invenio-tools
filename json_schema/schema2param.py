@@ -104,7 +104,8 @@ def _property(obj, required=False):
 
     else:
         assert 'oneOf' in obj, obj
-        param_obj = [ _handlers[o['type']](o) for o in obj['oneOf'] ]
+        param_objs = [ _handlers[o['type']](o) for o in obj['oneOf'] ]
+        param_obj = param.Selector(param_objs)
 
     return param_obj
 
@@ -164,8 +165,8 @@ def _array(obj):
     assert all([ k in obj for k in ['type', 'items'] ])
     assert obj['type'] == 'array'
 
-    items = _items(obj['items'],
-                   minItems = obj.get('minItems', None))
+    items = [_items(obj['items'],
+                    minItems = obj.get('minItems', None))]
     return items
 
 
