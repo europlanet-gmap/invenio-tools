@@ -8,7 +8,7 @@ import param
 # - https://param.holoviz.org/user_guide/Parameters.html#parameter-metadata
 #
 
-def _date(val, *args):
+def _date(val, *args) -> tuple:
     """
     Return 'val' (and *args) as datetime.date object if not yet (eg, 'YYYY-MM-DD')
     """
@@ -35,7 +35,7 @@ _param_classes = {
     "date": param.CalendarDate
 }
 
-def _param(obj_type, *args, **kwargs):
+def _param(obj_type, *args, **kwargs) -> param.Parameterized:
     print(args, kwargs)
     _class = _param_classes[obj_type]
     _format = _format_args.get(obj_type)
@@ -56,19 +56,13 @@ def _param(obj_type, *args, **kwargs):
 #         obj_type = type(default_value)
 #         kwargs.update({ 'constant': True})
 
-def _property(obj, required=False):
+def _property(obj, name, required=False) -> param.Parameterized:
     """
     Return a "Param(*args, **kwargs)" object according to "obj['type']"
 
     >>> _property( {"type":"string"} )
     """
     assert any([ k in obj for k in ('type', 'const', 'oneOf') ]), obj
-
-    #
-    # Notice that you don't know the name of the "property" here,
-    # you're working only on the content, defining the property.
-    # The "name" of the property is known by the caller ('_properties()').
-    #
 
     kwargs = {}
     if 'type' in obj:
@@ -105,12 +99,13 @@ def _property(obj, required=False):
     else:
         assert 'oneOf' in obj, obj
         param_objs = [ _handlers[o['type']](o) for o in obj['oneOf'] ]
-        param_obj = param.Selector(param_objs)
+        # param_obj = param.Selector(param_objs)
+        param_obj = param_objs
 
     return param_obj
 
 
-def _properties(obj, required:list=None):
+def _properties(obj, required:list=None) -> dict:
     """
     >>> _properties({"name": {"type": "string"}, "type": {"const": "dataset"}, "date": {"type": "string", "format": "date"}})
     """
@@ -118,12 +113,12 @@ def _properties(obj, required:list=None):
     print(required)
     _props = {}
     for name, prop in obj.items():
-        _props[name] = _property(prop, required=name in required)
+        _props[name] = _property(prop, name, required=name in required)
 
     return _props
 
 
-def _object(obj:str):
+def _object(obj:str) -> dict:
     """
     Process an 'object' element
 
@@ -146,7 +141,7 @@ def _object(obj:str):
     return props
 
 
-def _items(obj, minItems=None):
+def _items(obj, minItems=None) -> param.Parameterized:
     """
     Return a list of "param types"
     """
@@ -157,7 +152,7 @@ def _items(obj, minItems=None):
     return param_obj
 
 
-def _array(obj):
+def _array(obj) -> list:
     """
     Return a container for items' Params
     """
@@ -178,7 +173,7 @@ _handlers = {
 }
 
 
-def main(obj):
+def main(obj) -> dict:
     assert isinstance(obj, dict)
     res = _handlers[obj['type']](obj)
     return res
