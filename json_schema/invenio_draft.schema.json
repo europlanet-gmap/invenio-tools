@@ -21,7 +21,8 @@
       }
     },
     "resource_type"   : { "type" : "string" },
-    "publication_date"  : { "type" : "number" },
+    "publication_date"  : { "type" : "string",
+                            "format": "date" },
     "description": { "type": "string" }
   },
 
