@@ -35,10 +35,8 @@ def read_schemas(basedir, pattern='*.schema.json'):
 schema_store = read_schemas(_curdir)
 
 
-def validate(payload, schema='invenio_draft.schema.json'):
-    # from jsonschema import Draft7Validator as Validator
+def create_resolver(schema):
     from jsonschema import RefResolver
-    from jsonschema.validators import validator_for
 
     # If we had a simple schmea we could use jsonschema's 'validate' function
     # (as we did as first):
@@ -57,6 +55,14 @@ def validate(payload, schema='invenio_draft.schema.json'):
     # Since we have "refs" in our schemas, we need a resolver to link them
     # resolver = RefResolver.from_schema(schema_store['base.schema.json'], store=schema_store)
     resolver = RefResolver.from_schema(schema_store[schema], store=schema_store)
+    return resolver
+
+
+def validate(payload, schema='invenio_draft.schema.json'):
+    # from jsonschema import Draft7Validator as Validator
+    from jsonschema.validators import validator_for
+
+    resolver = create_resolver(schema)
 
     # Get the correct (or best) validator for our schema's version
     Validator = validator_for(schema_store['base.schema.json'])
