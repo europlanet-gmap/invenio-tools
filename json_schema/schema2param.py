@@ -18,7 +18,8 @@ def _date(val, *args):
         assert isinstance(val, (str, datetime.date))
         val = datetime.date.fromisoformat(val) if isinstance(val, str) else val
     else:
-        val = datetime.date.today()
+        # val = datetime.date.today()
+        val = val
 
     return (val, *args)
 
@@ -29,66 +30,154 @@ _format_args = {
 
 _param_classes = {
     "string": param.String,
+    str: param.String,
+    int: param.Integer,
     "date": param.CalendarDate
 }
 
 def _param(obj_type, *args, **kwargs):
+    print(args, kwargs)
     _class = _param_classes[obj_type]
     _format = _format_args.get(obj_type)
     args = _format(*args) if _format else args
-    print(args)
     return _class(*args, **kwargs)
 
 
-# def _string(obj, default, name, required=False, constant=False):
-def _string(obj, *args, **kwargs):
+# def _string(obj):
+#     assert 'type' in obj
+#     assert obj['type'] == 'string'
+#
+#     obj_type = obj['type']
+#
+#     if 'format' in obj:
+#         obj_type = obj['format']
+#     elif 'const' in obj:
+#         default_value = obj['const']
+#         obj_type = type(default_value)
+#         kwargs.update({ 'constant': True})
+
+def _property(obj, required=False):
     """
-    Return a string/date "Param(*args, **kwargs)"
+    Return a "Param(*args, **kwargs)" object according to "obj['type']"
 
-    >>> _string( {"type":"string"}, None )
+    >>> _property( {"type":"string"} )
     """
-    print(obj)
-    print(args)
+    assert any([ k in obj for k in ('type', 'const', 'oneOf') ]), obj
 
-    obj_type = obj['type'] if 'format' not in obj else obj['format']
-    doc = obj.get('$comment', None)
+    #
+    # Notice that you don't know the name of the "property" here,
+    # you're working only on the content, defining the property.
+    # The "name" of the property is known by the caller ('_properties()').
+    #
 
-    kwargs.update({ 'doc': doc })
+    kwargs = {}
+    if 'type' in obj:
+        obj_type = obj['type']
 
-    return _param(obj_type, *args, **kwargs)
+        if obj_type == 'array':
+            param_container = _array(obj)
+            param_obj = param_container
+
+        elif obj_type == 'object':
+            param_obj = _object(obj)
+
+        else:
+            kwargs.update({ "allow_None": not required })
+            default_value = None
+
+            if 'format' in obj:
+                obj_type = obj['format']
+            elif 'const' in obj:
+                default_value = obj['const']
+                kwargs.update({ 'constant': True})
+
+            doc = obj.get('$comment', None)
+            kwargs.update({ 'doc': doc })
+
+            param_obj = _param(obj_type, default_value, **kwargs)
+
+    elif 'const' in obj:
+        default_value = obj['const']
+        obj_type = type(default_value)
+        kwargs.update({ 'constant': True})
+        param_obj = _param(obj_type, default_value, **kwargs)
+
+    else:
+        assert 'oneOf' in obj, obj
+        param_obj = [ _handlers[o['type']](o) for o in obj['oneOf'] ]
+
+    return param_obj
 
 
-def _const(obj):
-    value = obj['const']
-    value_type = type(value)
-    return _handlers[value_type](obj, value, constant=True)
-
-
-def _items(obj):
+def _properties(obj, required:list=None):
     """
-    Process an 'items' element
+    >>> _properties({"name": {"type": "string"}, "type": {"const": "dataset"}, "date": {"type": "string", "format": "date"}})
     """
-    pass
+    required = set(required) if required else set()
+    print(required)
+    _props = {}
+    for name, prop in obj.items():
+        _props[name] = _property(prop, required=name in required)
+
+    return _props
 
 
 def _object(obj:str):
     """
     Process an 'object' element
+
+    >>> _object({
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "type": {"const": "dataset"},
+                "date": {"type": "string", "format": "date"}
+            },
+            "required": ["name"]
+        })
     """
     # check mandatory fields
     assert all([ k in obj for k in ['type', 'properties'] ])
-    pass
+    assert obj['type'] == 'object'
+
+    props = _properties(obj['properties'],
+                        required = obj.get('required', None))
+    return props
+
+
+def _items(obj, minItems=None):
+    """
+    Return a list of "param types"
+    """
+    assert 'type' in obj
+    assert obj['type'] != 'array'
+
+    param_obj = _handlers[obj['type']](obj)
+    return param_obj
+
+
+def _array(obj):
+    """
+    Return a container for items' Params
+    """
+    # check mandatory fields
+    assert all([ k in obj for k in ['type', 'items'] ])
+    assert obj['type'] == 'array'
+
+    items = _items(obj['items'],
+                   minItems = obj.get('minItems', None))
+    return items
 
 
 _handlers = {
-    'items': _items,
     'object': _object,
-    'string': _string,
-    str: _string,
+    'array': _array,
+    # 'string': _string,
+    # str: _string,
 }
 
 
 def main(obj):
     assert isinstance(obj, dict)
-    _otype = obj['type']
     res = _handlers[obj['type']](obj)
+    return res

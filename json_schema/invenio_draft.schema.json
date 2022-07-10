@@ -18,11 +18,13 @@
             "$ref" : "invenio.defs.schema.json#/definitions/person_or_org"
           }
         }
-      }
+      },
+      "minItems": 1
     },
-    "resource_type"   : { "type" : "string" },
-    "publication_date"  : { "type" : "string",
-                            "format": "date" },
+    "resource_type": { "type" : "string",
+                       "const": "dataset" },
+    "publication_date": { "type" : "string",
+                          "format": "date" },
     "description": { "type": "string" }
   },
 
