@@ -42,7 +42,7 @@ The schema we're using here come from a package-validator based on json-schema, 
 
 
 
-## InveioRDM metadata
+## InvenioRDM metadata
 
 > * draft schema: [invenio_draft.schema.json](json_schema/invenio_draft.schema.json)
 
