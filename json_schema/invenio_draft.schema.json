@@ -8,7 +8,9 @@
   "type" : "object",
 
   "properties": {
+
     "title": { "type" : "string" },
+
     "creators": {
       "type" : "array",
       "items": {
@@ -21,11 +23,77 @@
       },
       "minItems": 1
     },
+
     "resource_type": { "type" : "string",
                        "const": "dataset" },
+
     "publication_date": { "type" : "string",
                           "format": "date" },
-    "description": { "type": "string" }
+
+    "description": { "type": "string" },
+
+    "additional_titles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 1
+    },
+
+    "rights": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "contributors": {
+      "type": "object",
+      "properties": {
+        "person_or_org": {
+          "$ref" : "invenio.defs.schema.json#/definitions/person_or_org"
+        }
+      }
+    },
+
+    "subjects": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "publisher": { "type": "string" },
+
+    "identifiers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "related_identifiers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "locations": {
+      "type": "object",
+      "properties": {
+        "features": {
+          "$ref": "geometry.defs.schema.json#definitions/polygon"
+        }
+      }
+    },
+
+    "funding": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "files": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "bool" },
+        "entries": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "default_preview": { "type": "string" }
+      }
+    }
   },
 
   "required" : [
