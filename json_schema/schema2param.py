@@ -100,7 +100,8 @@ def _property(obj, name, required=False) -> param.Parameterized:
         assert 'oneOf' in obj, obj
         param_objs = [ _handlers[o['type']](o) for o in obj['oneOf'] ]
         # param_obj = param.Selector(param_objs)
-        param_obj = param_objs
+        # param_obj = param_objs
+        param_obj = { 'oneOf': param_objs }
 
     return param_obj
 
