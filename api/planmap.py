@@ -42,13 +42,55 @@ import requests
 from os import path
 from datetime import date
 from dataclasses import dataclass, asdict
+from typing import Union, List
 
 
 
 ALLOWED_EXTS = ('pdf','jpg','jpeg','png','zip')
+DOCS_MAXSIZE = 10 * 10**6 # 10 * megabytes
 
 
-def parse_package(pathdir):
+def dms2deg(coord:Union[str,float]):
+    """
+    Convert degrees-minutes-seconds to degrees
+    """
+    import re
+    
+    try:
+        _ = coord + 1.2
+    except:
+        pass 
+    else:
+        return coord 
+
+    coord = coord.replace('°','')
+    north = 'N' in coord[-1].upper()
+    south = 'S' in coord[-1].upper()
+    east = 'E' in coord[-1].upper()
+    west = 'W' in coord[-1].upper()
+    
+    if any([north, south, east, west]):
+        coord = coord[:-1]
+        
+    negative = south or west
+    
+    vals = [ float(v) for v in re.split('[dm\'s\"]', coord) if v ]
+    assert len(vals) <= 3
+    d,m,s = vals if len(vals)==3 else vals + [0]*(3-len(vals))
+
+    minutes_in_a_day = 24*60
+    d += m * 360/minutes_in_a_day
+
+    seconds_in_a_day = minutes_in_a_day * 60
+    d += s * 360/seconds_in_a_day
+
+    if negative:
+        d *= -1
+        
+    return d
+
+
+def parse_package(pathdir, docs_maxsize=DOCS_MAXSIZE):
     from glob import glob
     readme = None
     docs_dir = None
@@ -58,11 +100,21 @@ def parse_package(pathdir):
         if path.basename(filepath).lower() == 'document':
             docs_dir = filepath
 
-    assert readme and docs_dir
+    assert readme
 
     payload = parse_readme_file(readme)
-    documents = glob(f"{docs_dir}/*")
-    payload.add_files(documents)
+
+    if docs_dir:
+        documents = []
+        for doc in glob(f"{docs_dir}/*.*"):
+            if os.path.getsize(doc) > DOCS_MAXSIZE:
+                print(f"File {os.path.basename(doc)} too big (> {DOCS_MAXSIZE} bytes)."
+                       "I'm not including it.")
+                continue
+            else:
+                documents.append(doc)
+
+        payload.add_files(documents)
 
     return payload
 
@@ -75,7 +127,7 @@ def parse_readme_url(url):
     _zip = _url.replace('/pub/','/zip/') + '.zip'
 
     # return _parse_readme(readme, _zip)
-    return _parse_readme(readme)
+    return parse_readme(readme)
 
 
 def parse_readme_file(filename):
@@ -83,10 +135,54 @@ def parse_readme_file(filename):
         readme = fp.read()
 
     _zip = os.path.dirname(filename) + '.zip'
-    return _parse_readme(readme)
+    return parse_readme(readme)
 
 
-def _parse_readme(readme, zip_package=None):
+def markdown2json(readme: Union[str,list[str]]):
+    table = {}
+    if isinstance(readme, str):
+        readme = readme.split('\n')
+
+    assert isinstance(readme, list)
+    
+    for line in readme:
+        line = line.strip()
+        if not line.startswith('|'):
+            continue
+        try:
+            k, v, *x = [ o.strip() for o in line.split('|') if o ]
+        except:
+            continue
+        else:
+            if k.lower() == 'field' or k.startswith('-'):
+                continue
+            
+            try:
+                _v = float(v)
+                v = _v
+            except:
+                v = v
+                if "bounding box" in k.lower():
+                    v = dms2deg(v)
+
+            table.update({ k: v })
+
+    return table 
+
+
+_SCHEMA_README = 'planmap_readme.schema.json'
+
+def validate(json: dict):
+    from .json_schema.validate import validate
+    return validate(json, schema=_SCHEMA_README)
+
+
+def parse_readme(readme:str, zip_package:str=None):
+    """
+    Input:
+    - readme: str
+        '\n'-separated readme text content
+    """
 
     def _parse_bbox(table):
         """
@@ -118,15 +214,8 @@ def _parse_readme(readme, zip_package=None):
                 return table.pop(tk)
         return None
 
-    table = {}
-    for line in readme.split('\n'):
-        line = line.strip()
-        if not line.startswith('|'):
-            continue
-        k, v = [ o.strip() for o in line.split('|') if o ]
-        if k.lower() == 'field' or k.startswith('-'):
-            continue
-        table.update({ k: v })
+    table = markdown2json(readme)
+    _ = validate(table)
 
     _meta = {
         'publisher': 'Planmap',
@@ -145,7 +234,8 @@ def _parse_readme(readme, zip_package=None):
 
     _meta.update({'extra': table})
 
-    return InvenioPlanmap(**_meta)
+    # return InvenioPlanmap(**_meta)
+    return _meta
 
 
 @dataclass
@@ -246,27 +336,36 @@ class InvenioPlanmap(BasePayload):
                 HINTS = ('center','centre','corporation','technology','science')
                 return any([ (word in name.lower()) for word in HINTS ])
 
+            if not authors:
+                print("Empty list of authors!")
+                return None
+
             out = []
-            for name in authors:
-                if is_org(name):
-                    crt = {'name': f"{name}",
-                            'type': 'organizational'
-                          }
-                else:
-                    _name = re.sub('\(.*\)', '', name)
-                    _name = _name.split()
-                    f_name = _name[-1]
-                    g_name = ' '.join(_name[:-1])
-                    crt = {'family_name': f"{f_name}",
-                            'given_name': f"{g_name}",
-                            'type': 'personal'
-                          }
+            try:
+                for name in authors:
+                    if is_org(name):
+                        crt = {'name': f"{name}",
+                                'type': 'organizational'
+                              }
+                    else:
+                        _name = re.sub('\(.*\)', '', name)
+                        _name = _name.split()
+                        f_name = _name[-1]
+                        g_name = ' '.join(_name[:-1])
+                        crt = {'family_name': f"{f_name}",
+                                'given_name': f"{g_name}",
+                                'type': 'personal'
+                              }
 
                 out.append({'person_or_org': crt})
+
+            except:
+                return None
+
             return out
 
         def _description(description, **kwargs):
-            description = description.strip()
+            description = description.strip() if description else ""
             if not description.endswith('.'):
                 description += '.'
 
@@ -303,7 +402,12 @@ class InvenioPlanmap(BasePayload):
                 sup_info = f"\n<b>Ancillary information:</b>\n"
                 sup_info += "<ul>"
                 for k,v in kwargs.items():
-                    _sub = f"<li>{str(k)}: {str(v)}</li>"
+                    if len(vals := v.split('\n')) > 1:
+                        _sub = f"{str(k)}:<ul><li>"
+                        _sub += "</li><li>".join(str(_) for _ in vals)
+                        _sub += "</li></ul>"
+                    else:
+                        _sub = f"<li>{str(k)}: {str(v)}</li>"
                     sup_info += _sub
 
                 sup_info += "</ul>"
@@ -322,9 +426,11 @@ class InvenioPlanmap(BasePayload):
             # Use order in ALLOWED_EXTS
             files = list(files_dict.keys())
             files.sort(key=lambda f:ALLOWED_EXTS.index(f.split('.')[-1].lower()))
+            default = [f for f in files if f.lower().endswith('pdf')]
+            default = default[0] if default else None
             d = {
                 'enabled': bool(len(files)),
-                'default_preview': [f for f in files if f.lower().endswith('pdf')][0],
+                'default_preview': default,
                 'order': files
             }
             (d)
@@ -340,6 +446,10 @@ class InvenioPlanmap(BasePayload):
         resource_type = {'id': 'dataset'}
 
         creators = _creators(self.authors)
+        if not creators:
+            print("Empty list of authors!")
+            return None
+
         description = _description(
                 description=self.description,
                 bounding_box=self.bounding_box,

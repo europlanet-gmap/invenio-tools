@@ -80,23 +80,28 @@ def test_validate():
     return validate(d)
 
 
-def main(filename):
+def main(filename, schema):
     import json
     with open(filename) as fp:
         js = json.load(fp)
-    res = validate(js)
+    res = validate(js, schema)
     print('Looks good.')
     return res
 
 
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) < 2:
-        print("Validate file (json) content against (invenio_draft) schema", file=sys.stderr)
-        print(f"Usage: {sys.argv[0]} <filename.json>", file=sys.stderr)
-        sys.exit(1)
+    from argparse import ArgumentParser
 
-    filename = sys.argv[1]
+    parser = ArgumentParser(description='Validate file (json) against schema')
+    
+    parser.add_argument('--schema', default='invenio_draft.schema.json')
+    parser.add_argument('jsonfile', type=str, help="JSON file to validate")
+
+    args = parser.parse_args()
+
+    filename = args.jsonfile
+    schema = args.schema
     assert os.path.exists(filename)
-    main(filename)
+    main(filename, schema)
     sys.exit(0)

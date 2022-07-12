@@ -68,10 +68,18 @@ class InvenioClient:
         path_ext = '/records'
         data_record = payload.create_record_payload()
 
-        resp_record = self._post(path_ext, json.dumps(data_record))
+        resp = self._post(path_ext, json.dumps(data_record))
+
+        try:
+            resp.raise_for_status()
+        except Exception as err:
+            print(repr(err))
+            return None
+
+        resp_js = resp.json()
 
         # Upload files
-        draft_id = resp_record.json()['id']
+        draft_id = resp_js['id']
 
         # 1) initialize file key(s)
         #
