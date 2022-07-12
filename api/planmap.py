@@ -49,6 +49,12 @@ from typing import Union, List
 ALLOWED_EXTS = ('pdf','jpg','jpeg','png','zip')
 DOCS_MAXSIZE = 10 * 10**6 # 10 * megabytes
 
+README_SCHEMA = 'planmap_readme.schema.json'
+
+def validate(json: dict):
+    from .json_schema.validate import validate
+    return validate(json, schema = README_SCHEMA)
+
 
 def dms2deg(coord:Union[str,float]):
     """
@@ -149,32 +155,31 @@ def markdown2json(readme: Union[str,list[str]]):
         line = line.strip()
         if not line.startswith('|'):
             continue
+
         try:
+            # split and remove whitespaces around key-value-etc strings
+            #
             k, v, *x = [ o.strip() for o in line.split('|') if o ]
         except:
             continue
-        else:
-            if k.lower() == 'field' or k.startswith('-'):
-                continue
-            
-            try:
-                _v = float(v)
-                v = _v
-            except:
-                v = v
-                if "bounding box" in k.lower():
-                    v = dms2deg(v)
 
-            table.update({ k: v })
+        if k.lower() == 'field' or k.startswith('-'):
+            continue
+            
+        if v:
+            if any([ v.lower() == na for na in ('na','nan','n/a')]):
+                v = ""
+            else:
+                try:
+                    _v = float(v)
+                    v = _v
+                except:
+                    if "bounding box" in k.lower():
+                        v = dms2deg(v)
+
+        table.update({ k: v })
 
     return table 
-
-
-_SCHEMA_README = 'planmap_readme.schema.json'
-
-def validate(json: dict):
-    from .json_schema.validate import validate
-    return validate(json, schema=_SCHEMA_README)
 
 
 def parse_readme(readme:str, zip_package:str=None):
