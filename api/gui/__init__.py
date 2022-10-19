@@ -82,6 +82,12 @@ map_type = widgets.SelectMultiple(
     description = "Map type"
 )
 
+gmap_id = widgets.Text(
+    description = '<i style="color:gray">GMAP-ID</i>', 
+    description_allow_html = True,
+    disabled = True
+    )
+
 def on_change_value(change):
     _target = target.value.strip().title()
     _type = ''.join([map_types[t].upper() for t in map_type.value ])
@@ -97,7 +103,6 @@ target.observe(on_change_value, names='value')
 shortname.observe(on_change_value, names='value')
 map_type.observe(on_change_value, names='value')
 
-gmap_id = widgets.Text(description = '<i style="color:gray">GMAP-ID</i>', disabled=True)
 
 # add_author_button = widgets.Button(
 #     description = 'Add Author',
@@ -211,13 +216,18 @@ for i,bx in enumerate(form_descr.children):
 form_descr.selected_index = None
 # form_descr
 
-app = widgets.AppLayout(
-    header = gmap_id,
-    center = widgets.VBox([
-        form_main,
-        form_descr
-    ]),
-    left_sidebar = None,
-    right_sidebar = None,
-    footer = None
-)
+# app = widgets.AppLayout(
+#     header = gmap_id,
+#     center = widgets.VBox([
+#         form_main,
+#         form_descr
+#     ]),
+#     left_sidebar = None,
+#     right_sidebar = None,
+#     footer = None
+# )
+
+del form_descr
+del form_main
+del gmap_id 
+del widgets
