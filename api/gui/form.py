@@ -17,25 +17,25 @@ def set_data_to_form(json, form):
     for field, value in json.items():
         form.set(field, value)
 
-layout = [
-    'title',
-    'shortname',
-    'map_type',
-    'target',
-    [
-        {"Longitude (west,east) [-180:180]": ['bbox_lon_west', 'bbox_lon_east']},
-        {"Latitude (min,max) [-90:90]": ['bbox_lat_min', 'bbox_lat_max']}
-    ],
-    'publication_date',
-    'doi',
-    'authors_widgets',
-    [
-        {"Map description": ['description', 'aims', 'units', 'stratigraphic_info']},
-        {"Spatial attributes": ['crs', 'output_scale']},
-        {"Ancillary data": ['ancillary_data', 'related_products', 'heritage', 'extra_data']},
-        {"Notes": ['standards', 'comments', 'acknowledge']}
-    ]
-]
+# layout = [
+#     'title',
+#     'shortname',
+#     'map_type',
+#     'target',
+#     [
+#         {"Longitude (west,east) [-180:180]": ['bbox_lon_west', 'bbox_lon_east']},
+#         {"Latitude (min,max) [-90:90]": ['bbox_lat_min', 'bbox_lat_max']}
+#     ],
+#     'publication_date',
+#     'doi',
+#     'authors_widgets',
+#     [
+#         {"Map description": ['description', 'aims', 'units', 'stratigraphic_info']},
+#         {"Spatial attributes": ['crs', 'output_scale']},
+#         {"Ancillary data": ['ancillary_data', 'related_products', 'heritage', 'extra_data']},
+#         {"Notes": ['standards', 'comments', 'acknowledge']}
+#     ]
+# ]
 
 def assemble_widgets(form, layout):
     """Layout widgets"""
@@ -57,7 +57,7 @@ def assemble_widgets(form, layout):
 
 
 class Form(UserDict):
-    def __init__(self, json:Union[dict,None] = None, layout:Union[list,None] = layout):
+    def __init__(self, json:Union[dict,None] = None, layout:Union[list,None] = None):
         super().__init__()
         _main = create_main_widgets()
         _other = create_other_widgets()
@@ -266,7 +266,7 @@ def create_main_widgets() -> dict:
             description = "Map type"
         ),
 
-        authors_widgets = Items("Author (fullname)").widget,
+        authors = Items("Author (fullname)").widget,
 
 
         bbox_lon_west = wt['float'](description = "West-Lon"),
