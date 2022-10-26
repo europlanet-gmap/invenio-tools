@@ -39,7 +39,7 @@ def validate_json(obj:dict, schema:dict) -> bool:
         return True
 
 
-def _object(obj:dict, ) -> dict:
+def _object(obj:dict, required:bool=False) -> dict:
     """
     Process an 'object' element
 
@@ -65,7 +65,7 @@ def _object(obj:dict, ) -> dict:
     return props
 
 
-def _array(obj:dict, name:str) -> list:
+def _array(obj:dict, name:str, required:bool) -> list:
     """
     Return a container for items' Params
     """
@@ -73,10 +73,11 @@ def _array(obj:dict, name:str) -> list:
     assert all([ k in obj for k in ['type', 'items'] ]), obj
     assert obj['type'] == 'array', obj
 
-    return _items(obj['items'], name, minItems = obj.get('minItems', None))
+    return _items(obj['items'], name, required,
+                  minItems = obj.get('minItems', None))
 
 
-def _items(obj:dict, name:str, minItems=None, maxItems=None):
+def _items(obj:dict, name:str, required:bool, minItems=None, maxItems=None):
     """
     Return a list of "param types"
     """
@@ -84,41 +85,55 @@ def _items(obj:dict, name:str, minItems=None, maxItems=None):
     assert obj['type'] != 'array'
     assert maxItems is None, "'maxItems' is not implemented yet"
 
+    kwargs = {}
     if 'enum' in obj:
-        return widgets.SelectMultiple(
-            options = obj['enum'],
-            description = name.replace('_',' ').title()
-        )
+        w_cls = widgets.SelectMultiple
+        kwargs.update({'options': obj['enum']})
 
     if 'type' in obj:
-        # return Items().widget
-        return Items()
+        w_cls = Items
+
+    return make_widget(obj, name, required, w_cls, **kwargs)
 
 
-def _string(obj:dict, name:str):
+def _string(obj:dict, name:str, required:bool):
     """ 
     Return a Text iPywidget
     """
-    name = name.replace('_', ' ').title()
-
+    kwargs = {}
     if 'enum' in obj:
-        return widgets.Dropdown(
-            description = name,
-            options = obj['enum']
-        )
+        w_cls = widgets.Dropdown
+        kwargs.update({'options': obj['enum']})
+    else:
+        w_cls = widgets.Text
 
-    return widgets.Text(
-        description = name
-    ) 
+    return make_widget(obj, name, required, w_cls, **kwargs)
 
 
-def _number(obj:dict, name:str):
+def _number(obj:dict, name:str, required:bool):
     """
     Return a FloatText iPywidget
     """
-    return widgets.FloatText(
-        description = name.replace('_', ' ').title()
-    )
+    w_cls = widgets.FloatText
+    return make_widget(obj, name, required, w_cls)
+
+
+def make_widget(obj:dict, name:str, required:bool, widget_class, **kwargs):
+    description = name.replace('_', ' ').title()
+    ro = obj['readOnly'] if 'readOnly' in obj else False
+
+    if required:
+        description = F'<strong style="color:red">{description}</strong>'
+    if ro:
+        description = F'<i>{description}</i>'
+
+    kwargs.update(dict(
+        description = description, 
+        description_allow_html = True,
+        disabled = ro
+    ))
+
+    return widget_class(**kwargs)
 
 
 _type_resolvers = {
@@ -156,7 +171,7 @@ def _property(schema_property:dict, name:str, required:bool = False):
     assert any([ k in obj for k in supported_fields ]), obj
 
     if 'type' in obj:
-        param_obj = _type_resolvers[obj['type']](obj, name)
+        param_obj = _type_resolvers[obj['type']](obj, name, required)
 
     else:
         assert 'oneOf' in obj, obj
@@ -209,7 +224,7 @@ def _param(obj_type, *args, **kwargs):
 @widgets.register
 class Items(widgets.VBox):
 
-    def __init__(self, description="Text field"):
+    def __init__(self, description = "Text field", **kwargs):
         self.description = description
         add_btn = widgets.Button(icon="plus")
         add_btn.on_click(lambda btn: self.add_item())
