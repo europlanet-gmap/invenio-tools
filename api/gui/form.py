@@ -55,6 +55,12 @@ class Form(UserDict):
         self._layout = layout
         self._widget = assemble_widgets(self, layout)
 
+    # def __str__(self):
+    #     return super(object).__str__()
+
+    # def __repr__(self):
+    #     return super(object).__repr__()
+        
     def set(self, field:str, value:Any) -> bool:
         """Set 'value' to 'field'"""
         assert field in self
@@ -77,7 +83,7 @@ class Form(UserDict):
         
         Note: 'filename' should validate against Form 'schema'
         """
-        # First of all, validate the (JSON) filename against self._schema
+        # First, validate the (JSON) filename against self._schema
         js = schema2ipywidgets.read_json(filename)
         assert schema2ipywidgets.validate_json(js, self._schema)
         for k,v in js.items():
@@ -86,7 +92,8 @@ class Form(UserDict):
     def to_json(self):
         js = {}
         for k,v in self.items():
-            js[k] = v.value 
+            js[k] = v.value if not isinstance(v.value, tuple) else list(v.value)
+        assert schema2ipywidgets.validate_json(js, self._schema)
         return js
 
     @property 

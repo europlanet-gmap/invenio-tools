@@ -21,17 +21,19 @@ def validate_schema(schema:dict) -> bool:
     from ..json_schema import validate
     try:
         validate.check_schema(schema)
-    except:
+    except Exception as err:
+        print(err)
         return False 
     else:
         return True
 
 
-def validate_json(json:dict, schema:dict) -> bool:
+def validate_json(obj:dict, schema:dict) -> bool:
     from jsonschema import validate
     try:
-        validate(instance={"name" : "Eggs", "price" : 34.99}, schema=schema)
-    except:
+        validate(instance=obj, schema=schema)
+    except Exception as err:
+        print(err)
         return False 
     else:
         return True
