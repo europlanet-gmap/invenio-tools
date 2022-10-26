@@ -1,27 +1,39 @@
 #!/usr/bin/env python
 
 import os
+import json
 import jsonschema
+
+from pathlib import Path 
 
 _curdir = os.path.dirname(os.path.abspath(__file__))
 
+def read_json(filename):
+    """
+    Return JSON object from (JSON) filename.
+    """
+    fpath = Path(filename)
+
+    try:
+        with open(fpath) as f:
+            js = json.load(f)
+    except Exception as err:
+        print(f"Error loading '{fpath}': {r:err}")
+        return None
+
+    return js
+    
 
 def read_schemas(basedir, pattern='*.schema.json'):
     """
     Return a dictionary with all schemas from 'basedir' matching 'pattern'
     """
-    import json
     from glob import glob
 
     schemas = {}
     for fn in glob(os.path.join(basedir, pattern)):
-        try:
-            with open(fn) as f:
-                js = json.load(f)
-        except:
-            print(f"Error loading JSON: '{fn}'")
-            raise
-        else:
+        js = read_json(fn)
+        if js is not None:
             # If schema has no "$id" key, add one: filename.
             #
             _fn = os.path.basename(fn)
@@ -67,12 +79,23 @@ def validate(payload, schema='invenio_draft.schema.json'):
     # Get the correct (or best) validator for our schema's version
     Validator = validator_for(schema_store['base.schema.json'])
 
+    assert Validator.check_schema(schema)
+
     # Put them all together to define the validator/schema set to use
     validator = Validator(schema_store[schema], resolver=resolver)
 
     res = validator.validate(payload)
     # jsonschema.validate(data, schema_store[schema])
     return res
+
+
+def check_schema(schema, Validator=None):
+    from jsonschema.validators import validator_for
+
+    if not Validator:
+        Validator = validator_for(schema)
+
+    return Validator.check_schema(schema)
 
 
 def test_validate():

@@ -2,12 +2,39 @@ import ipywidgets as widgets
 
 
 def main(obj:dict) -> dict:
-    """Return a representation of 'obj' schema with widgets to be used in Form"""
+    """
+    Return a representation of 'obj' schema with widgets to be used in Form
+    """
+
     assert isinstance(obj, dict), obj
     assert obj['type'] == 'object', obj
+
+    # First, let's validate the schema
+    assert validate_schema(obj)
+    
     # res = _handlers[obj['type']](obj)
     res = _object(obj)
     return res
+
+
+def validate_schema(schema:dict) -> bool:
+    from ..json_schema import validate
+    try:
+        validate.check_schema(schema)
+    except:
+        return False 
+    else:
+        return True
+
+
+def validate_json(json:dict, schema:dict) -> bool:
+    from jsonschema import validate
+    try:
+        validate(instance={"name" : "Eggs", "price" : 34.99}, schema=schema)
+    except:
+        return False 
+    else:
+        return True
 
 
 def _object(obj:dict, ) -> dict:
@@ -171,7 +198,6 @@ def _param(obj_type, *args, **kwargs):
     Input:
         *args : 
     """
-    print(args, kwargs)
     wdgt_class = _wdgt_classes[obj_type]
     _format = _format_args.get(obj_type)
     args = _format(*args) if _format else args

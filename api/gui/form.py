@@ -41,10 +41,18 @@ def assemble_widgets(form, layout):
 
 
 class Form(UserDict):
-    def __init__(self, schema:Union[dict,None] = None, layout:Union[list,None] = None):
-        super().__init__()
+    """
+    Given a JSON-Schema, create form input widgets accordingly
+    """
+    def __init__(self, schema:Union[dict,None], layout:Union[list,None] = None):
+        """
+        Create widgets following 'layout' (if given).
+        """
         wd = schema2ipywidgets.main(schema)
-        self.update(wd)
+        super().__init__(wd)
+        # self.update(wd)
+        self._schema = schema
+        self._layout = layout
         self._widget = assemble_widgets(self, layout)
 
     def set(self, field:str, value:Any) -> bool:
@@ -54,24 +62,44 @@ class Form(UserDict):
         wdgt.value = value
 
     def add(self, field:str, value:Any) -> bool:
+        """
+        Add 'value' to 'field' if it's a container, if not, return False.
+        """
         raise NotImplementedError
 
     def get(self, field:str) -> Any:
+        """Return value in 'field'"""
         return self[field].value
 
     def read_json(self, filename):
-        raise NotImplementedError
+        """
+        Set form/data (field/value) with JSON content.
+        
+        Note: 'filename' should validate against Form 'schema'
+        """
+        # First of all, validate the (JSON) filename against self._schema
+        js = schema2ipywidgets.read_json(filename)
+        assert schema2ipywidgets.validate_json(js, self._schema)
+        for k,v in js.items():
+            self.set(k,v)
+
+    def to_json(self):
+        js = {}
+        for k,v in self.items():
+            js[k] = v.value 
+        return js
 
     @property 
     def widget(self):
-        return widgets.AppLayout(
-            header = self['gmap_id'] if 'gmap_id' in self else None,
-            center = self._widget,
-            left_sidebar = None,
-            right_sidebar = None,
-            footer = None
-        )
-
+        """Return Form "app" """ 
+        # return widgets.AppLayout(
+        #     header = None,
+        #     center = self._widget,
+        #     left_sidebar = None,
+        #     right_sidebar = None,
+        #     footer = None
+        # )
+        return self._widget
 
 
 # widget_types = dict(
