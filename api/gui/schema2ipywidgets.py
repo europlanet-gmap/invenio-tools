@@ -85,13 +85,13 @@ def _items(obj:dict, name:str, required:bool, minItems=None, maxItems=None):
     assert obj['type'] != 'array'
     assert maxItems is None, "'maxItems' is not implemented yet"
 
+    if 'type' in obj:
+        w_cls = Items
+
     kwargs = {}
     if 'enum' in obj:
         w_cls = widgets.SelectMultiple
         kwargs.update({'options': obj['enum']})
-
-    if 'type' in obj:
-        w_cls = Items
 
     return make_widget(obj, name, required, w_cls, **kwargs)
 

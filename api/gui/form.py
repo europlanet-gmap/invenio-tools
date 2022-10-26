@@ -77,15 +77,15 @@ class Form(UserDict):
         """Return value in 'field'"""
         return self[field].value
 
-    def read_json(self, filename):
+    def read_json(self, js):
         """
         Set form/data (field/value) with JSON content.
-        
-        Note: 'filename' should validate against Form 'schema'
         """
-        # First, validate the (JSON) filename against self._schema
-        js = schema2ipywidgets.read_json(filename)
-        assert schema2ipywidgets.validate_json(js, self._schema)
+        if isinstance(js, (str,Path)):
+            with open(js) as fp:
+                js = json.load(fp)
+        # # Validate the (JSON) filename against self._schema
+        # assert schema2ipywidgets.validate_json(js, self._schema)
         for k,v in js.items():
             self.set(k,v)
 
@@ -99,13 +99,6 @@ class Form(UserDict):
     @property 
     def widget(self):
         """Return Form "app" """ 
-        # return widgets.AppLayout(
-        #     header = None,
-        #     center = self._widget,
-        #     left_sidebar = None,
-        #     right_sidebar = None,
-        #     footer = None
-        # )
         return self._widget
 
 
