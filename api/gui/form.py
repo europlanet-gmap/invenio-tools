@@ -48,12 +48,13 @@ class Form(UserDict):
         """
         Create widgets following 'layout' (if given).
         """
-        wd = schema2ipywidgets.main(schema)
-        super().__init__(wd)
-        # self.update(wd)
+        super().__init__()
+        attribute_widgets = schema2ipywidgets.main(schema)
+        self.update(attribute_widgets)
+
         self._schema = schema
-        self._layout = layout
-        self._widget = assemble_widgets(self, layout)
+
+        self.set_layout(layout)
 
     # def __str__(self):
     #     return super(object).__str__()
@@ -61,6 +62,9 @@ class Form(UserDict):
     # def __repr__(self):
     #     return super(object).__repr__()
         
+    def set_layout(self, layout):
+        self._layout = layout 
+
     def set(self, field:str, value:Any) -> bool:
         """Set 'value' to 'field'"""
         assert field in self
@@ -98,8 +102,8 @@ class Form(UserDict):
 
     @property 
     def widget(self):
-        """Return Form "app" """ 
-        return self._widget
+        """Return Form "app" """
+        return assemble_widgets(self, self._layout)
 
 
 # widget_types = dict(
