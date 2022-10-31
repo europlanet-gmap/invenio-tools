@@ -245,7 +245,7 @@ class Items(widgets.VBox):
         return self
 
 
-    def add_item(self, value=None):
+    def add_item(self, value:str = None):
         """Create new Text input widget in items"""
         text = widgets.Text(description = self.description)
         if value is not None:
@@ -261,8 +261,12 @@ class Items(widgets.VBox):
             self.children = tuple(list(self.children) + [new_item])
 
         return self
-        
-        
+
+
+    def clear(self):
+        """Remove all items (but the '+' button)"""
+        self.children = (self.children[0], )
+
     @property 
     def value(self):
         value = [w.children[0].value for w in self.children[1:]]
@@ -270,6 +274,6 @@ class Items(widgets.VBox):
 
     @value.setter
     def value(self, value:list):
+        self.clear()
         for val in value:
             self.add_item(val)
-
