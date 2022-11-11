@@ -1,4 +1,5 @@
 import ipywidgets as widgets
+from typing import Any, Union
 
 
 def main(obj:dict) -> dict:
@@ -81,20 +82,18 @@ def _items(obj:dict, name:str, required:bool, minItems=None, maxItems=None):
     """
     Return a list of "param types"
     """
-    assert 'type' in obj
     assert obj['type'] != 'array'
-    assert maxItems is None, "'maxItems' is not implemented yet"
 
-    if 'type' in obj:
-        w_cls = Items
-
-    kwargs = {}
     if 'enum' in obj:
         w_cls = widgets.SelectMultiple
-        kwargs.update({'options': obj['enum']})
-
-    return make_widget(obj, name, required, w_cls, **kwargs)
-
+        kwargs = {'options': obj['enum']}
+        return make_widget(obj, name, required, w_cls, **kwargs)
+ 
+    if 'type' in obj:
+        # Items have all the same schema
+        return Items(obj, description=name.title())
+ 
+ 
 
 def _string(obj:dict, name:str, required:bool):
     """ 
@@ -133,7 +132,13 @@ def make_widget(obj:dict, name:str, required:bool, widget_class, **kwargs):
         disabled = ro
     ))
 
-    return widget_class(**kwargs)
+    try:
+        widget = widget_class(**kwargs)
+    except:
+        print(obj)
+        raise 
+
+    return widget
 
 
 _type_resolvers = {
@@ -221,47 +226,80 @@ def _param(obj_type, *args, **kwargs):
     return wdgt_class(*args, **kwargs)
 
 
-@widgets.register
-class Items(widgets.VBox):
+OBJECT_BASECLASS = widgets.VBox
+ITEMS_BASECLASS = widgets.VBox
 
-    def __init__(self, description = "Text field", **kwargs):
+@widgets.register
+class Object(OBJECT_BASECLASS):
+    def __init__(self, prop_widgets:dict):
+        self._widgets = prop_widgets
+        super().__init__(list(prop_widgets.values()))
+
+    @property 
+    def value(self):
+        value = [w.value for w in self._widgets.values()]
+        return value 
+
+    @value.setter
+    def value(self, value:dict):
+        assert isinstance(value, dict), f"Expected a dictionary, instead got {type(value)}"
+        for p,w in self._widgets.items():
+            if p in value:
+                w.value = value[p]
+            else:
+                w.value = ''
+
+
+@widgets.register
+class Items(ITEMS_BASECLASS):
+
+    def __init__(self, obj:dict, description = "Text field", **kwargs):
+        self._obj = obj
+        self._wdgts = {}
         self.description = description
         add_btn = widgets.Button(icon="plus")
         add_btn.on_click(lambda btn: self.add_item())
         super().__init__([add_btn])
-        
 
-    def del_item(self, value):
-        def not_value(item):
-            try:
-                found = item.children[0].value == value
-            except:
-                found = False
-            return not found
-        
-        new_items = filter(not_value, self.children)
-        self.children = tuple(new_items)
+    def _make_widget(self, value=None):
+        def generate_id():
+            from random import randint
+            id_ = randint(100,1000)
+            while id_ in self._wdgts:
+                id_ = randint(100,1000)
+            return id_ 
 
-        return self
+        obj = self._obj
+        prop_widgets = _handlers[obj['type']](obj)
+        wdgt = Object(prop_widgets)
+        wdgt.value = value
+        # if isinstance(wdgt, dict):
+        #     wdgt = widgets.VBox(list(wdgt.values()))
 
+        id_ = generate_id()
+        return wdgt, id_
 
-    def add_item(self, value:str = None):
-        """Create new Text input widget in items"""
-        text = widgets.Text(description = self.description)
+    def del_item(self, id_):
+        item_to_remove = self._wdgts.pop(id_)
+        self.children = tuple([self.children[0]] + list(self._wdgts.values()))
+
+    def add_item(self, value:Union[dict,str,None] = None):
+        """Create new widget in items"""
+        wdgt, id_ = self._make_widget(value=value)
         if value is not None:
-            text.value = str(value)
+            wdgt.value = value
 
         del_btn = widgets.Button(icon="trash")
-        del_btn.on_click(lambda btn: self.del_item(text.value))
+        del_btn.on_click(lambda btn: self.del_item(id_))
 
-        new_item = widgets.HBox([text, del_btn])
+        new_item = widgets.HBox([wdgt, del_btn])
         
         if all(item.children[0].value.strip() 
                for item in self.children if hasattr(item, 'children')):
-            self.children = tuple(list(self.children) + [new_item])
+            new_children = tuple(list(self.children) + [new_item])
 
-        return self
-
+        self._wdgts[id_] = new_item
+        self.children = new_children
 
     def clear(self):
         """Remove all items (but the '+' button)"""
@@ -273,7 +311,13 @@ class Items(widgets.VBox):
         return value 
 
     @value.setter
-    def value(self, value:list):
+    def value(self, value:Union[dict,list]):
+        assert isinstance(value, (dict,list)), "Expected a list or dictionary."
         self.clear()
-        for val in value:
-            self.add_item(val)
+        if isinstance(value, list):
+            for val in value:
+                self.add_item(val)
+        else:
+            self.add_item(value)
+
+
