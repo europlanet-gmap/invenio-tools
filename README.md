@@ -1,11 +1,19 @@
 # InvenioRDM tools
 
-Repository for tools (Python, Bash, etc) around InvenioRDM (Invenio or IRDM, https://inveniordm.docs.cern.ch).
+Repository for tools (Python, Bash) and metadata schema around InvenioRDM (https://inveniordm.docs.cern.ch) on the use for the GMAP project (https://europlanet-gmap.eu).
+
+InvenioRDM (or simply _Invenio_) is the Research Data Management (RDM) software used by GMAP for the internal publication of the data packages produced or linked by the project.
+Invenio is being used either as an aggregator (for data products of interest) or as an experimental RDM software for formating and publishing planetary spatial data; It is not meant to _substitute_ Zenodo (https://zenodo.org) as a final, DOI certified data repository.
+
+_Why don't we just use Zenodo, instead?_ - you ask. Because (_i_) Zenodo is a general purpose data repository and planetary (spatial) data - in particular geologial maps - have a particular set of metadata that we, at GMAP, understand are relevante to expose; And (_ii_), because we want to define an homogeneous organization of data and metadata when they - the GMAP maps - get into Zenodo. The standardization of such metadata is a process, takes development, tests, and demands a place for testing and homologation.
+
+In the document [`metadata.md`](metadat.md) we discuss how GMAP's metadata set conforms to Invenio metadata fields. We also discuss in there, how to map GMAP's parent project, PLANMAP (https://planmap.eu), into Invenio. As well as Astropedia (https://astrogeology.usgs.gov) data products metadata into Invenio. The discussion is not taken individually on each project, but rather an overall meaning of the different but meaningful alike fields should fit into an homogeneous set.
 
 InvenioRDM provides an API the user can use to query, publish or update packages
 (see https://inveniordm.docs.cern.ch/reference/rest_api_index/).
 
 Some actions available to the user:
+
 * _drafts_:
   - list (user) drafts
   - create draft
