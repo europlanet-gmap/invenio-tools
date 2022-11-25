@@ -1,3 +1,10 @@
+# Metadata
+
+InvenioRDM is the interface we (at GMAP) are using to publish the data products (maps) we produce. Consequently, the metadata fields available at Invenio are the ones we want to all the others to fit in. This is a practical discussion in the sense that we want to stablish an homogenous mapping schema from the other metadata sets (here discussed) to fit in. 
+
+By no means it is argued that Invenio provides the ultimate, "right" set of metadata fields planetary/spatial metadata should accomplish, but rather the interface we _want_ to use.
+
+
 ## InvenioRDM metadata
 
 > * draft schema: [invenio_draft.schema.json](json_schema/invenio_draft.schema.json)
