@@ -28,23 +28,26 @@ In the table below, the attributes and their description.
 
 | Attribute | Cardinality | Description | API document field |
 | --- | --- | --- | --- |
-| Resource type(*) | CV | The resource type id from the controlled vocabulary. | `resource_type = { id }` |
-| Creators(*) | `obj` | Person or organization | `creators = [{ person_or_org }]` |
-| Title(*) | text | Package title | `title` | 
-| Publication date(*) | ISO8601 | Publication date (eg, `2020-12-31`) | `publication_date` |
-| Additional title | text | Sub/Extra title | `additional_titles = [{ title, type }]` |
-| Description | text | HTML/plain-text description | `description` |
-| Additional descriptions | `obj` | Descriptions for `abstract`, `methods`, `series-information`, `table-of-contents`, `technical-info`, `other` | `additional_descriptions` |
-| Rights/Licenses | CV | License name or statement | `rights = [{ id|title }]` |
-| Contributors | text | People or organisations contributing to the work | `contributors = [{ person_or_org, role }]` |
-| Subjects | text | Subject, keyword(s), classification code describing the resource | `sujects = [{ id|subject }]` | 
-| Publisher | text | Name of entity responsible for the publication. This property will be used to formulate the citation. (eg, `GMAP`) | `publisher` |
-| Alternate identifiers | text/CV | Persistent identifiers for the resource (eg, DOI, Bidcode) | `identifiers = [{ identifier, scheme }]` |
-| Related identifiers | text/CV | Related resources used in the work (eg, DOI, Bidcode) | `related_identifiers = [{ identifier, scheme, relation_type, resource_type }]` |
+| Additional descriptions | (0-N) | Descriptions for `abstract`, `methods`, `series-information`, `table-of-contents`, `technical-info`, `other` | `additional_descriptions` |
+| Additional titles | (0-N) | Sub/Extra title | `additional_titles = [{ title, type }]` |
+| Alternate identifiers | (0-N) | Persistent identifiers for the resource (eg, DOI, Bidcode) | `identifiers = [{ identifier, scheme }]` |
+| Contributors | (0-N) | People or organisations contributing to the work | `contributors = [{ person_or_org, role }]` |
+| Creators* | (1-N) | Person or organization | `creators = [{ person_or_org }]` |
+| Description | (0-1) | HTML/plain-text description | `description` |
+| Formats | (0-N) |
+| Funding references | (0-N) | Project/Award funding the work | `funding = [{ funder|award }]` |
 | Locations | (0-N) | GeoJSON geometry locating the map over the target | `locations = { features = { geometry, place }}` |
-| Funding | text | Project/Award funding the work | `funding = [{ funder|award }]` |
-| References | text | List of reference strings | `references = [{ reference }]` |
-| Files | | List of files (image, tables, documents) content | `files = { enabled, entries, default_preview }` |
+| Publication date* | (1) | Publication date (eg, `2020-12-31`) | `publication_date` |
+| Publisher | (0-1) | Name of entity responsible for the publication. This property will be used to formulate the citation. (eg, `GMAP`) | `publisher` |
+| References | (0-N) | List of reference strings | `references = [{ reference }]` |
+| Related identifiers | (0-N,CV) | Related resources used in the work (eg, DOI, Bidcode) | `related_identifiers = [{ identifier, scheme, relation_type, resource_type }]` |
+| Resource type* | (1,CV) | The resource type id from the controlled vocabulary. | `resource_type = { id }` |
+| Rights/Licenses | (0-N,CV) | License name or statement | `rights = [{ id|title }]` |
+| Subjects | (0-N) | Subject, keyword(s), classification code describing the resource | `sujects = [{ id|subject }]` | 
+| Title* | (1) | Package title | `title` | 
+| Version | (0-N) |
+| <hr/> | <hr/> | <hr/> | <hr/> | 
+| Files | (0-N) | List of files (image, tables, documents) content | `files = { enabled, entries, default_preview }` |
 
 > * draft schema: [invenio_draft.schema.json](json_schema/invenio_draft.schema.json)
 
@@ -58,61 +61,63 @@ In the following table, GMAP packages' metadata set:
 > - <sup>u1</sup> `src.name` is not a valid UCD1+ (as of version 1.3), the closest UCD (to name a target body) would be `meta.id;src;pos.bodyrc`
 > - (?) indicates attributes under revision
 
-| Field | Description | UCD 
+| Attribute | Description | UCD 
 |-|-|-
-| Map name (GMAP_ID) | Unique package name (`GMAP-{{target-body}}-{{content-type}}-{{region-label}}_{{detail-label}}`) | `meta.id` 
-| Target body | Name of target body (eg, `Mercury`) | `src.name`<sup>u1</sup>
-| Title of map | Map title (eg, `Awesome Geologic Map of the region X`) | `meta.title`, `pos.bodyrc` 
-| Bounding box - Min Lat | Minimum latitude in degrees [-90:90) (< Max Lat) | `pos.bodyrc.lat` 
-| Bounding box - Max Lat | Maximum latitude in degrees (-90:90] (> Min Lat) | `pos.bodyrc.lat` 
-| Bounding box - Min Lon | West-most Longitude in degrees [-180:180) (< Max Lon) | `pos.bodyrc.lon` 
-| Bounding box - Max Lon | East-most Longitude in degrees (-180:180] (> Min Lon) | `pos.bodyrc.lon` 
-| Authors | Semi-colon separated list of authors | `meta.id.PI`, `meta.id.CoI` 
-| Original Coordinate Reference System | WKT declaring map' CRS | `pos.frame` 
-| Data used | Semi-colon separated list of ancillary, original data used | `meta.ref`, `meta.dataset` 
-| Standards adhered to | Semi-colon list of standards used in the map | `meta.ref`, `meta.code.qual` 
-| DOI of companion paper | DOI of linked publication | `meta.ref.doi` 
-| Short description | Free-text (500 words maximum) describing the map | `meta.abstract` 
-| Units Definition | Units color definition, polygon styling | `meta.code.class`, `src.morph.type`, `meta.abstract` 
-| Stratigraphic info | Description of stratigraphic elements in the map | `meta.code.class`, `meta.abstract` 
 | Acknowledgements | Free-text acknowledge | `meta.ref`, `meta.id.assoc` 
-||
+| Authors* | Semi-colon separated list of authors | `meta.id.PI`, `meta.id.CoI` 
+| Bounding box - Max Lat | Maximum latitude in degrees (-90:90] (> Min Lat) | `pos.bodyrc.lat` 
+| Bounding box - Max Lon | East-most Longitude in degrees (-180:180] (> Min Lon) | `pos.bodyrc.lon` 
+| Bounding box - Min Lat | Minimum latitude in degrees [-90:90) (< Max Lat) | `pos.bodyrc.lat` 
+| Bounding box - Min Lon | West-most Longitude in degrees [-180:180) (< Max Lon) | `pos.bodyrc.lon` 
+| DOI of companion paper | DOI of linked publication | `meta.ref.doi` 
+| Data used | Semi-colon separated list of ancillary, original data used | `meta.ref`, `meta.dataset` 
+| Map name (GMAP_ID)* | Unique package name (`GMAP-{{target-body}}-{{content-type}}-{{region-label}}_{{detail-label}}`) | `meta.id` 
+| Original Coordinate Reference System | WKT declaring map' CRS | `pos.frame` 
+| Short description* | Free-text (500 words maximum) describing the map | `meta.abstract` 
+| Standards adhered to | Semi-colon list of standards used in the map | `meta.ref`, `meta.code.qual` 
+| Stratigraphic info | Description of stratigraphic elements in the map | `meta.code.class`, `meta.abstract` 
+| Target body* | Name of target body (eg, `Mercury`) | `src.name`<sup>u1</sup>
+| Title of map* | Map title (eg, `Awesome Geologic Map of the region X`) | `meta.title`, `pos.bodyrc` 
+| Units Definition | Units color definition, polygon styling | `meta.code.class`, `src.morph.type`, `meta.abstract` 
+| ? |
 | (?) Aims | Reason, goal for this map | `meta.note` 
 | (?) Heritage used | heritage information | `meta.ref`, `meta.id.parent` 
+| (?) Link to other data | Links to extenal resources 
+| (?) Other comments | free-text (notes, errata, warnings) 
 | (?) Output scale | Map spatial scale | `pos.wcs.scale` 
 | (?) Related products | Other geological maps complementing this one | `meta.ref`, `meta.bib` 
 | (?) Type | Either "draft" or "released" | `meta.version` 
-
-| _deprecated:_ ||
-|-|-
-| (?) Other comments | free-text (notes, errata, warnings) 
-| (?) Link to other data | Links to extenal resources 
+| <hr/> | <hr/> | <hr/> | <hr/> | 
+| Files<ul><li>`document/`*<li>`raster/`<li>`vector/`</ul> | Documents, raster and vector data. Mandatory: map in PDF format. | (1-N)
 
 
 ### GMAP-Invenio metadata mapping
 
 To publish GMAP packages through Invenio we have to map the metadata models to represent the attributes properly.
 
-| **InvenioRDM** | **GMAP** | **Tranform** |
-| --- | --- | --- |
-| Resource type | "GMAP package" | `dataset` |
-| Creators | Authors | |
-| Title | Title of map | |
-| Additional title | Map name (GMAP_ID) | | 
-| Publication_date | | `today()` |
-| Description | Short description + SEE BELOW | |
-| Rights/Licenses | | `cc`|
-| Contributors | | |
-| Subjects | Aims | | 
-| Publisher | | `GMAP` |
-| Alternate identifiers | DOI of companion paper | |
-| Related works | Related products + Data used + Link to other data | |
-| Locations | Bounding box + (place) Target body | |
-| Funding | Acknowledgemennts | |
-| References | Heritage used + Standards adhered to | |
-| Files | _Raster, Vector, Document_ | |
+| InvenioRDM Attribute | GMAP Attribute | Cardinality | Default value (in Invenio) |
+|-|-|-|-
+| Additional descriptions | Original CRS<br/>Other comments<br/>Output scale<br/>Stratigraphic info<br/>Target body*<br/>Units definition | (1-N)
+| Additional titles | Map name (GMAP_ID)* | (1)
+| Alternate identifiers | DOI of companion paper | (0-1)
+| Contributors |-|-|-
+| Creators* | Authors* | (1-N)
+| Description | Short description* | (1)
+| Formats |-|-|-
+| Funding references | Acknowledgements | (0-N)
+| Locations | Bounding box ({Min,Max}-{Lon,Lat}) | (0-1)
+| Publication_date* | | (1) |`today()` 
+| Publisher | | (0-1) |`GMAP` 
+| References | Heritage used<br/>Standards adhered to | (0-N) 
+| Related identifiers | Data used<br/>Link to other data<br/>Related products | (0-N) 
+| Resource type* | | (1) | `dataset` 
+| Rights/Licenses | | (0-N) | `cc`
+| Subjects | Aims | (0-1)
+| Title* | Title of map* | (1)
+| Version | Type | (0-1)
+| <hr/> | <hr/> | <hr/> | <hr/> | 
+| Files | `meta.json` (this metadata)<br/>`Map.pdf`*<br/>_documents, raster and vector data_<br/> | (1-N) | `meta.json`
 
-> GMAP unfit fields: "Type", "Output scale", "Original CRS", "Units definition (polygon styling)", "Stratigraphic info", "Other comments"
 
 #### Description
 
