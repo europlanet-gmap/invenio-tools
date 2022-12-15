@@ -1,10 +1,19 @@
 {
-  "$id": "planmap_readme.schema.json",
+  "$id": "planmap_meta.schema.json",
 
   "title": "GMAP package schema",
   "$comment": "Define GMAP data package structure",
 
   "type" : "object",
+
+  "definitions": {
+    "string_or_null": {
+      "anyOf": [
+        {"type": "string" },
+        {"type": "null" }
+      ]
+    }
+  },
 
   "properties": {
 
@@ -53,15 +62,20 @@
 
   "patternProperties": {
     "^Aims": { "type": "string" },
-    "^Author": { "type" : "string" },
-    "^Acknowledgements": { "type": "string" },
-    "^DOI" : { "type": "string" },
-    "^Link": { "type": "string" },
+    "^Author": { 
+      "type" : "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "^Acknowledgements": { "$ref" : "#/definitions/string_or_null" },
+    "^DOI" : { "$ref" : "#/definitions/string_or_null" },
+    "^Link": { "$ref" : "#/definitions/string_or_null" },
     "^Map name": { "type": "string" },
-    "^Other comments": { "type": "string" },
-    "^Related products": { "type": "string" },
-    "^Standards": { "type": "string" },
-    "^Stratigraphic info": { "type": "string" },
+    "^Other comments": { "$ref" : "#/definitions/string_or_null" },
+    "^Related products": { "$ref" : "#/definitions/string_or_null" },
+    "^Standards": { "$ref" : "#/definitions/string_or_null" },
+    "^Stratigraphic info": { "$ref" : "#/definitions/string_or_null" },
     "^Units Definition": { "type": "string" },
 
     "^Bounding box - Min Lat": { 
