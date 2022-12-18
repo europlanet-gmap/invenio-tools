@@ -378,26 +378,22 @@ class InvenioPlanmap(BasePayload):
                 return None
 
             out = []
-            try:
-                for name in authors:
-                    if is_org(name):
-                        crt = {'name': f"{name}",
-                                'type': 'organizational'
-                              }
-                    else:
-                        _name = re.sub('\(.*\)', '', name)
-                        _name = _name.split()
-                        f_name = _name[-1]
-                        g_name = ' '.join(_name[:-1])
-                        crt = {'family_name': f"{f_name}",
-                                'given_name': f"{g_name}",
-                                'type': 'personal'
-                              }
+            for name in authors:
+                if is_org(name):
+                    crt = {'name': f"{name}",
+                           'type': 'organizational'
+                          }
+                else:
+                    _name = re.sub('\(.*\)', '', name)
+                    _name = _name.split()
+                    f_name = _name[-1]
+                    g_name = ' '.join(_name[:-1])
+                    crt = {'family_name': f"{f_name}",
+                            'given_name': f"{g_name}",
+                            'type': 'personal'
+                          }
 
                 out.append({'person_or_org': crt})
-
-            except:
-                return None
 
             return out
 
