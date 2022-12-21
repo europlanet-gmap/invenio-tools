@@ -158,7 +158,7 @@ def parse_readme_file(filename):
     return parse_readme(readme)
 
 
-def markdown2json(readme: Union[str,list[str]]):
+def markdown2json(readme: Union[str,List[str]]):
     table = {}
     if isinstance(readme, str):
         readme = readme.split('\n')
@@ -435,8 +435,10 @@ class InvenioPlanmap(BasePayload):
                 sup_info = f"\n<b>Ancillary information:</b>\n"
                 sup_info += "<ul>"
                 for k,v in kwargs.items():
+                    if v is None:
+                        continue
                     try:
-                        if len(vals := v.split('\n')) > 1:
+                        if isinstance(v, str) and len(vals := v.split('\n')) > 1:
                             _sub = f"{str(k)}:<ul><li>"
                             _sub += "</li><li>".join(str(_) for _ in vals)
                             _sub += "</li></ul>"
