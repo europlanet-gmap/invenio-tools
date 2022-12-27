@@ -47,7 +47,7 @@ from typing import Union, List
 
 
 ALLOWED_EXTS = ('pdf','jpg','jpeg','png','zip')
-DOCS_MAXSIZE = 10 * 10**6 # 10 * megabytes
+DOCS_MAXSIZE = 100 * 10**6 # 100 * megabytes
 
 README_SCHEMA = 'planmap_readme.schema.json'
 META_SCHEMA = 'planmap_meta.schema.json'

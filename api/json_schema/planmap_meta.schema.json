@@ -17,25 +17,31 @@
 
   "properties": {
 
-    "Map version" : { "type": "integer" },
+    "Map version" : {
+      "anyOf": [
+        {"type": "string" },
+        {"type": "number" },
+        {"type": "null" }
+      ]
+    },
     
     "Title of map": { "type" : "string" },
 
-    "Target body": { "type": "string" },
+    "Target body": { "$ref" : "#/definitions/string_or_null" },
 
-    "Type": { "type": "string" },
+    "Type": { "$ref" : "#/definitions/string_or_null" },
 
-    "Output scale": { "type": "string" },
+    "Output scale": { "$ref" : "#/definitions/string_or_null" },
 
-    "Original Coordinate Reference System": { "type": "string" },
+    "Original Coordinate Reference System": { "$ref" : "#/definitions/string_or_null" },
 
-    "Data used": { "type": "string" },
+    "Data used": { "$ref" : "#/definitions/string_or_null" },
 
-    "DOI of companion paper(s)": { "type": "string" },
+    "DOI of companion paper(s)": { "$ref" : "#/definitions/string_or_null" },
 
-    "Short description": { "type": "string" },
+    "Short description": { "$ref" : "#/definitions/string_or_null" },
 
-    "Heritage used": { "type": "string" },
+    "Heritage used": { "$ref" : "#/definitions/string_or_null" },
 
 
 
@@ -61,7 +67,7 @@
   },
 
   "patternProperties": {
-    "^Aims": { "type": "string" },
+    "^Aims": { "$ref" : "#/definitions/string_or_null" },
     "^Author": { 
       "type" : "array",
       "items": {
@@ -76,7 +82,7 @@
     "^Related products": { "$ref" : "#/definitions/string_or_null" },
     "^Standards": { "$ref" : "#/definitions/string_or_null" },
     "^Stratigraphic info": { "$ref" : "#/definitions/string_or_null" },
-    "^Units Definition": { "type": "string" },
+    "^Units Definition": { "$ref" : "#/definitions/string_or_null" },
 
     "^Bounding box - Min Lat": { 
       "type" : "number",
