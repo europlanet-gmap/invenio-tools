@@ -119,13 +119,62 @@ To publish GMAP packages through Invenio we have to map the metadata models to r
 | Files | `meta.json` (this metadata)<br/>`Map.pdf`*<br/>_documents, raster and vector data_<br/> | (1-N) | `meta.json`
 
 
-#### Description
+#### _Description_ attribute
 
 The `Description` field in Invenio has to accommodate all the GMAP attribute the do not fit in IRDM model,
 and possibly repeat some (like Target, and Bounding-box) for clarity, besides GMAP's `Short description`. 
 
 
-## Astropedia
+## Astropedia metadata
+
+Similar to the discussion for GMAP, we want to find a suitable set of metadata attribute mappings 
+between Astropedia packages and InvenioRDM. The application is slighlty different: Astropedia 
+package data are not meant to be replublished in GMAP's Invenio instance, but rather hyperlink
+to the original (USGS) publication pages; Nevertheless, the discussion around metadata models is
+the same.
+
+Astropedia do not provide a formal definition of their data packages structure,
+like [GMAP](https://wiki.europlanet-gmap.eu/bin/view/Main/Documentation/Map-wide%20metadata/),
+so we have to extract the model from their pages.
+
+Here are some maps/packages we will use in this exercise:
+- [Unified Geologic Map of the Moon, 1:5M, 2020](https://astrogeology.usgs.gov/search/map/Moon/Geology/Unified_Geologic_Map_of_the_Moon_GIS_v2)
+- [Global Geologic Map of Ganymede, SIM3237](https://astrogeology.usgs.gov/search/map/Ganymede/Geology/Ganymede_SIM3237_Database)
+- [Mercury 5M GIS Conversion v2](https://astrogeology.usgs.gov/search/map/Mercury/Geology/Mercury_5M_GIS_conversion_v2)
+- [Mars 15M Geologic Map GIS Renovation](https://astrogeology.usgs.gov/search/map/Mars/Geology/Mars15MGeologicGISRenovation)
+- [Geologic Map of Io, SIM 3168](https://astrogeology.usgs.gov/search/map/Io/Geology/Io_SIM3168_Database)
+- [Mercury MESSENGER MDIS Basemap Enhanced Color Global Mosaic 665m](https://astrogeology.usgs.gov/search/map/Mercury/Messenger/Global/Mercury_MESSENGER_MDIS_Basemap_EnhancedColor_Mosaic_Global_665m)
+- [Mars Viking Colorized Global Mosaic 232m v2](https://astrogeology.usgs.gov/search/map/Mars/Viking/MDIM21/Mars_Viking_MDIM21_ClrMosaic_global_232m)
+
+Going through those pages we notice the information is fairly regular, 
+and the attributes in the table below compose those necessary-and-suficient 
+to fit GMAP/Invenio models. Data files and supplementary material are not
+of interest here because (_i_) we want to publish a _metapackage_, and (_ii_)
+the details and data provision is Astropedia's job.
+
+| Attribute | Description | Section | Comment |
+|-|-|-|-|
+| Description | Package description | 
+| Publisher | Publishing institution |
+| Publication Date | Date of publication |
+| Modified | Data of (latest) modification | |
+| Author | List of authors | | format varies
+| Originator/Group | Institution providing the data? | | clarify
+| Purpose | Package goal/application | General 
+| Online Linkage | Data file | General | multiple files? |
+| Suplemental Information | Links to other resources | General | comma-sep urls
+| System | Planetary system (eg, Mars)| Keywords
+| Target | Body (eg, Mars) | Keywords
+| Theme | Topics | Keywords
+| Mission | Mission(s) | Keywords
+| Instrument | Instrument | Keywords
+| Search Terms | Keywords | Keywords
+| Access Constraints | Data access constraints | Contact and Distribution 
+| Use Constraints | Data use constraints | Contact and Distribution 
+| Data Status and Quality: * | Data quality reports and processing description | Data Status and Quality
+| Geospatial Information: * | Geospatial information (eg, b-box, data type, projection) | Geospatial Information
+
+### Astropedia-Invenio metadata mapping
 
 Files and code to parse Astropedia's pages and ingest into InvenioRDM (v6).
 
