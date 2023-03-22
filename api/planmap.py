@@ -47,13 +47,19 @@ from typing import Union, List
 
 
 ALLOWED_EXTS = ('pdf','jpg','jpeg','png','zip')
-DOCS_MAXSIZE = 10 * 10**6 # 10 * megabytes
+DOCS_MAXSIZE = 100 * 10**6 # 100 * megabytes
 
 README_SCHEMA = 'planmap_readme.schema.json'
+META_SCHEMA = 'planmap_meta.schema.json'
 
-def validate(json: dict):
+def validate(json:dict, schema:str):
     from .json_schema.validate import validate
-    return validate(json, schema = README_SCHEMA)
+    try:
+        return validate(json, schema = schema)
+    except:
+        print(json)
+        print(schema)
+        raise
 
 
 def dms2deg(coord:Union[str,float]):
@@ -98,6 +104,7 @@ def dms2deg(coord:Union[str,float]):
 
 def parse_package(pathdir, docs_maxsize=DOCS_MAXSIZE):
     from glob import glob
+    meta = None
     readme = None
     docs_dir = None
     for filepath in glob(f"{pathdir}/*"):
@@ -105,10 +112,17 @@ def parse_package(pathdir, docs_maxsize=DOCS_MAXSIZE):
             readme = filepath
         if path.basename(filepath).lower() == 'document':
             docs_dir = filepath
+        if path.basename(filepath).lower() == 'meta.json':
+            meta = filepath
 
-    assert readme
+    # assert readme or meta
+    assert readme and meta
 
-    payload = parse_readme_file(readme)
+    if not meta:
+        assert False
+        payload = parse_readme_file(readme)
+    else:
+        payload = parse_metajson(meta)
 
     if docs_dir:
         documents = []
@@ -140,11 +154,11 @@ def parse_readme_file(filename):
     with open(filename, 'r') as fp:
         readme = fp.read()
 
-    _zip = os.path.dirname(filename) + '.zip'
+    # _zip = os.path.dirname(filename) + '.zip'
     return parse_readme(readme)
 
 
-def markdown2json(readme: Union[str,list[str]]):
+def markdown2json(readme: Union[str,List[str]]):
     table = {}
     if isinstance(readme, str):
         readme = readme.split('\n')
@@ -189,7 +203,21 @@ def parse_readme(readme:str, zip_package:str=None):
         '\n'-separated readme text content
     """
 
-    def _parse_bbox(table):
+    table = markdown2json(readme)
+
+    return _parse_meta_table(table, schema=README_SCHEMA)
+
+
+def parse_metajson(jsonfile:str):
+    with open(jsonfile, 'r') as fp:
+        table = json.load(fp)
+
+    return _parse_meta_table(table, schema=META_SCHEMA)
+
+
+def _parse_meta_table(table:dict, schema:str):
+
+    def _parse_bbox(tab):
         """
         Map's bounding-box fields to ours
         """
@@ -206,28 +234,32 @@ def parse_readme(readme:str, zip_package:str=None):
                     return bf
 
         bbox = {}
-        for field in list(table.keys()):
+        for field in list(tab.keys()):
             if key := match_bbox(field):
-                value = table.pop(field)
+                value = tab.pop(field)
                 bbox.update({ _bbox[key] : float(value) })
 
         return bbox
 
-    def _get_value(key, table):
-        for tk in list(table.keys()):
+    def _get_value(key, tab):
+        for tk in list(tab.keys()):
             if key.lower() in tk.lower():
-                return table.pop(tk)
+                return tab.pop(tk)
         return None
 
-    table = markdown2json(readme)
-    _ = validate(table)
+    bla = validate(table, schema)
+    del bla
+
+    _authors = _get_value('Author', table)
+    assert isinstance(_authors, list)
 
     _meta = {
         'publisher': 'Planmap',
         'name': _get_value('Map name (PM_ID)', table),
         'body': _get_value('Target body', table),
         'title': _get_value('Title of map', table),
-        'authors': _get_value('Author', table).split(','),
+        # 'authors': _get_value('Author', table).split(','),
+        'authors': _authors,
         'description': _get_value('Short description', table),
         'pub_date': _get_value('Publication date', table) or date.today().isoformat(),
         'identifiers': {
@@ -239,8 +271,8 @@ def parse_readme(readme:str, zip_package:str=None):
 
     _meta.update({'extra': table})
 
-    # return InvenioPlanmap(**_meta)
-    return _meta
+    return InvenioPlanmap(**_meta)
+    # return _meta
 
 
 @dataclass
@@ -346,26 +378,22 @@ class InvenioPlanmap(BasePayload):
                 return None
 
             out = []
-            try:
-                for name in authors:
-                    if is_org(name):
-                        crt = {'name': f"{name}",
-                                'type': 'organizational'
-                              }
-                    else:
-                        _name = re.sub('\(.*\)', '', name)
-                        _name = _name.split()
-                        f_name = _name[-1]
-                        g_name = ' '.join(_name[:-1])
-                        crt = {'family_name': f"{f_name}",
-                                'given_name': f"{g_name}",
-                                'type': 'personal'
-                              }
+            for name in authors:
+                if is_org(name):
+                    crt = {'name': f"{name}",
+                           'type': 'organizational'
+                          }
+                else:
+                    _name = re.sub('\(.*\)', '', name)
+                    _name = _name.split()
+                    f_name = _name[-1]
+                    g_name = ' '.join(_name[:-1])
+                    crt = {'family_name': f"{f_name}",
+                            'given_name': f"{g_name}",
+                            'type': 'personal'
+                          }
 
                 out.append({'person_or_org': crt})
-
-            except:
-                return None
 
             return out
 
@@ -407,13 +435,20 @@ class InvenioPlanmap(BasePayload):
                 sup_info = f"\n<b>Ancillary information:</b>\n"
                 sup_info += "<ul>"
                 for k,v in kwargs.items():
-                    if len(vals := v.split('\n')) > 1:
-                        _sub = f"{str(k)}:<ul><li>"
-                        _sub += "</li><li>".join(str(_) for _ in vals)
-                        _sub += "</li></ul>"
-                    else:
-                        _sub = f"<li>{str(k)}: {str(v)}</li>"
-                    sup_info += _sub
+                    if v is None:
+                        continue
+                    try:
+                        if isinstance(v, str) and len(vals := v.split('\n')) > 1:
+                            _sub = f"{str(k)}:<ul><li>"
+                            _sub += "</li><li>".join(str(_) for _ in vals)
+                            _sub += "</li></ul>"
+                        else:
+                            _sub = f"<li>{str(k)}: {str(v)}</li>"
+                        sup_info += _sub
+                    except Exception as err:
+                        print("Error:", err)
+                        print(k,v)
+                        pass
 
                 sup_info += "</ul>"
                 description += sup_info

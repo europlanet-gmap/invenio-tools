@@ -31,9 +31,24 @@
 
 
 
-    "Number of attached textures": { "type": "string" },
-    "Modelling method": { "type": "string" },
-    "Polygon number": { "type": "string" }
+    "Number of attached textures": { 
+      "anyOf": [
+        {"type": "string" },
+        {"type": "null" }
+      ]
+    },
+    "Modelling method": { 
+      "anyOf": [
+        {"type": "string" },
+        {"type": "null" }
+      ]
+    },
+    "Polygon number": { 
+      "anyOf": [
+        {"type": "string" },
+        {"type": "null" }
+      ]
+    }
   },
 
   "patternProperties": {

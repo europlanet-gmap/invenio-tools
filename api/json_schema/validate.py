@@ -18,7 +18,7 @@ def read_json(filename):
         with open(fpath) as f:
             js = json.load(f)
     except Exception as err:
-        print(f"Error loading '{fpath}': {r:err}")
+        print(f"Error loading '{fpath}': {err}")
         return None
 
     return js
@@ -70,7 +70,8 @@ def create_resolver(schema):
     return resolver
 
 
-def validate(payload, schema='invenio_draft.schema.json'):
+# def validate(payload, schema='invenio_draft.schema.json'):
+def validate(payload, schema):
     # from jsonschema import Draft7Validator as Validator
     from jsonschema.validators import validator_for
 
@@ -79,7 +80,7 @@ def validate(payload, schema='invenio_draft.schema.json'):
     # Get the correct (or best) validator for our schema's version
     Validator = validator_for(schema_store['base.schema.json'])
 
-    assert Validator.check_schema(schema)
+    # assert Validator.check_schema(schema), str(schema)
 
     # Put them all together to define the validator/schema set to use
     validator = Validator(schema_store[schema], resolver=resolver)
