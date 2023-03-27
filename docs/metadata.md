@@ -6,17 +6,36 @@ InvenioRDM is the chosen data repository software to manage GMAP data, it provid
 
 In this document we start describing Invenio interface, then we discuss GMAP packages. There is an addendum from PLANMAP packages. Third, we discuss referencing Astropedia packages through our Invenio instance.
 
-1. [InvenioRDM](#inveniordm-metadata)
-2. [GMAP](#gmap-metadata)
-3. [Astropedia](#astropedia)
+1. [InvenioRDM Record](#inveniordm-record)
+2. [GMAP Package](#gmap-package)
+3. [Astropedia Product](#astropedia-product)
 
 
-## InvenioRDM metadata
+## InvenioRDM Record
 
-The metadata fields associated to Invenio records is described in details at:
-- https://inveniordm.docs.cern.ch/reference/metadata/#metadata;
+The metadata fields associated to Invenio records are described in details at:
+- https://inveniordm.docs.cern.ch/reference/metadata/#metadata.
 
-Invenio metadata schema is aligned to Datacite's version 4.3<sup>[2][2]</sup>.
+Those metadata attributes are stored as JSON files, aligned to 
+Datacite version 4.3<sup>[2][2]</sup>.
+
+### Record payload
+
+The top-level fields of a record are described in the table below, as well as
+the JSON object (figures from the docs [\[1\]][1]).
+![Invenio Record top-level fields](invenio_reocrd_top-level_attributes.png)
+![Invenio Record top-level JSON](invenio_record_top-level_JSON.png)
+
+> When you _read_ (query) a record (from the API) there are two more fields:
+> - `created`: creation timestamp (UTC)
+> - `updated`: (last) modification timestamp (UTC)
+
+Let's start from the `metadata` object, this is where the data package
+-- _ie_, record -- content is stored. The other (top-level) fields are 
+system-related information, explained afterwards.
+
+
+#### Metadata object
 
 In the table below, the attributes and their description. 
 
@@ -32,19 +51,19 @@ In the table below, the attributes and their description.
 | Additional titles | (0-N) | Sub/Extra title | `additional_titles = [{ title, type }]` |
 | Alternate identifiers | (0-N) | Persistent identifiers for the resource (eg, DOI, Bidcode) | `identifiers = [{ identifier, scheme }]` |
 | Contributors | (0-N) | People or organisations contributing to the work | `contributors = [{ person_or_org, role }]` |
-| Creators* | (1-N) | Person or organization | `creators = [{ person_or_org }]` |
+| *Creators | (1-N) | Person or organization | `creators = [{ person_or_org }]` |
 | Description | (0-1) | HTML/plain-text description | `description` |
-| Formats | (0-N) |
-| Funding references | (0-N) | Project/Award funding the work | `funding = [{ funder|award }]` |
+| Formats | (0-N) | Resources (files) format (eg, `application/pdf`) | `formats`
+| Funding references | (0-N) | Project/Award funding the work | `funding = [{ funder\|award }]` |
 | Locations | (0-N) | GeoJSON geometry locating the map over the target | `locations = { features = { geometry, place }}` |
-| Publication date* | (1) | Publication date (eg, `2020-12-31`) | `publication_date` |
+| *Publication date | (1) | Publication date (eg, `2020-12-31`) | `publication_date` |
 | Publisher | (0-1) | Name of entity responsible for the publication. This property will be used to formulate the citation. (eg, `GMAP`) | `publisher` |
 | References | (0-N) | List of reference strings | `references = [{ reference }]` |
 | Related identifiers | (0-N,CV) | Related resources used in the work (eg, DOI, Bidcode) | `related_identifiers = [{ identifier, scheme, relation_type, resource_type }]` |
-| Resource type* | (1,CV) | The resource type id from the controlled vocabulary. | `resource_type = { id }` |
-| Rights/Licenses | (0-N,CV) | License name or statement | `rights = [{ id|title }]` |
-| Subjects | (0-N) | Subject, keyword(s), classification code describing the resource | `sujects = [{ id|subject }]` | 
-| Title* | (1) | Package title | `title` | 
+| *Resource type | (1,CV) | The resource type id from the controlled vocabulary. | `resource_type = { id }` |
+| Rights/Licenses | (0-N,CV) | License name or statement | `rights = [{ id\|title }]` |
+| Subjects | (0-N) | Subject, keyword(s), classification code describing the resource | `sujects = [{ id\|subject }]` | 
+| *Title | (1) | Package title | `title` | 
 | Version | (0-N) |
 | <hr/> | <hr/> | <hr/> | <hr/> | 
 | Files | (0-N) | List of files (image, tables, documents) content | `files = { enabled, entries, default_preview }` |
@@ -97,23 +116,23 @@ To publish GMAP packages through Invenio we have to map the metadata models to r
 
 | InvenioRDM Attribute | GMAP Attribute | Cardinality | Default value (in Invenio) |
 |-|-|-|-
+| Creators* | Authors* | (1-N)
+| Publication_date* | | (1) |`today()` 
+| Resource type* | | (1) | `dataset` 
+| Title* | Title of map* | (1)
 | Additional descriptions | Original CRS<br/>Other comments<br/>Output scale<br/>Stratigraphic info<br/>Target body*<br/>Units definition | (1-N)
 | Additional titles | Map name (GMAP_ID)* | (1)
 | Alternate identifiers | DOI of companion paper | (0-1)
 | Contributors |-|-|-
-| Creators* | Authors* | (1-N)
 | Description | Short description* | (1)
 | Formats |-|-|-
 | Funding references | Acknowledgements | (0-N)
 | Locations | Bounding box ({Min,Max}-{Lon,Lat}) | (0-1)
-| Publication_date* | | (1) |`today()` 
 | Publisher | | (0-1) |`GMAP` 
 | References | Heritage used<br/>Standards adhered to | (0-N) 
 | Related identifiers | Data used<br/>Link to other data<br/>Related products | (0-N) 
-| Resource type* | | (1) | `dataset` 
 | Rights/Licenses | | (0-N) | `cc`
 | Subjects | Aims | (0-1)
-| Title* | Title of map* | (1)
 | Version | Type | (0-1)
 | <hr/> | <hr/> | <hr/> | <hr/> | 
 | Files | `meta.json` (this metadata)<br/>`Map.pdf`*<br/>_documents, raster and vector data_<br/> | (1-N) | `meta.json`
@@ -152,31 +171,63 @@ to fit GMAP/Invenio models. Data files and supplementary material are not
 of interest here because (_i_) we want to publish a _metapackage_, and (_ii_)
 the details and data provision is Astropedia's job.
 
-| Attribute | Description | Section | Comment |
+| Attribute | Description | Section | DOM element (under `<section class="block metadata">`|
 |-|-|-|-|
-| Description | Package description | 
-| Publisher | Publishing institution |
-| Publication Date | Date of publication |
-| Modified | Data of (latest) modification | |
-| Author | List of authors | | format varies
-| Originator/Group | Institution providing the data? | | clarify
-| Purpose | Package goal/application | General 
-| Online Linkage | Data file | General | multiple files? |
-| Suplemental Information | Links to other resources | General | comma-sep urls
-| System | Planetary system (eg, Mars)| Keywords
-| Target | Body (eg, Mars) | Keywords
-| Theme | Topics | Keywords
-| Mission | Mission(s) | Keywords
-| Instrument | Instrument | Keywords
-| Search Terms | Keywords | Keywords
+| Title | Package title | "main" | `<h2 class="title">`
+| Description | Package description | "main" | all `<p>`
+| References | References | "main" | all `<p>` below "`<p>References</p>`"
+| Publisher | Publishing institution | "main" | `<dt>Publisher</dt><dd>*</dd>`
+| Publication Date | Date of publication | "main" | `<dt>Publication Date</dt><dd>*</dd>`
+| Modified | Data of (latest) modification | "main" | `<dt>Modified</dt><dd>*</dd>`
+| Author | List of authors | "main" | `<dt>Author</dt><dd>*</dd>`
+| Originator| Institution providing the data? | "main" | `<dt>Originator</dt><dd>*</dd>`
+| Group | Research group providing the data? | "main" | `<dt>Group</dt><dd>*</dd>`
+| *General attributes* | <hr/> | <hr/> | `<h2>General</h2>`
+| Purpose | Package goal/application | General | `<dt>Purpose</dt><dd>*</dd>`
+| Online Linkage | Data file | General |  `<dt>Online Linkage</dt><dd><a>*</a></dd>`
+| Suplemental Information | Links to other resources | General | `<dt>Suplemental Information</dt><dd><a>*</a></dd>`
+| *Keywords* | <hr/> | <hr/> | `<h2>Keywords</h2>`
+| System | Planetary system (eg, Mars)| Keywords | `<dt>System</dt><dd><a>*</a></dd>`
+| Target | Body (eg, Mars) | Keywords | `<dt>Target</dt><dd><a>*</a></dd>`
+| Theme | Topics | Keywords | `<dt>Theme</dt><dd><a>*</a></dd>`
+| Mission | Mission(s) | Keywords | `<dt>Mission</dt><dd><a>*</a></dd>`
+| Instrument | Instrument | Keywords | `<dt>Instrument</dt><dd><a>*</a></dd>`
+| Search Terms | Keywords | Keywords | `<dt>Search Terms</dt><dd>*</dd>`
+| *Contact and Distribution* | <hr/> | <hr/> | `<h2>Contact and Distribution</h2>`
 | Access Constraints | Data access constraints | Contact and Distribution 
 | Use Constraints | Data use constraints | Contact and Distribution 
+| *Data Status and Quality* | <hr/> | <hr/> | `<h2>Data Status and Quality</h2>`
 | Data Status and Quality: * | Data quality reports and processing description | Data Status and Quality
+| *Geospatial Information* | <hr/> | <hr/> | `<h2>Geospatial Information</h2>`
 | Geospatial Information: * | Geospatial information (eg, b-box, data type, projection) | Geospatial Information
 
 ### Astropedia-Invenio metadata mapping
 
-Files and code to parse Astropedia's pages and ingest into InvenioRDM (v6).
+| InvenioRDM Attribute | Astropedia attribute | Cardinality | Comment |
+|-|-|-|-
+| *Creators | Author | (1-N)
+| *Publication_date | Publication Date | (1) | What about "Modified Date"?
+| *Resource type | `dataset` | (1) 
+| *Title | Title | (1)
+| Additional descriptions | System</br>Target</br>Theme</br>Mission</br>Instrument</br>Geospatial Information | (1-N)
+| Additional titles | - | (1)
+| Alternate identifiers | Source URL (product page) | (0-1)
+| Contributors |-|-|-
+| Description | Description</br>Data Status and Quality | (1)
+| Formats |-|-|-
+| Funding references | - | (0-N)
+| Locations | Bounding box ({Min,Max}-{Lon,Lat}) | (0-1)
+| Publisher | Publisher | (0-1) | What about "Originator"/"Group"? 
+| References | ("References"?) | (0-N) 
+| Related identifiers | Online Linkage</br>Supplemental Information | (0-N) 
+| Rights/Licenses | Access/Use Constraints | (0-N) | 
+| Subjects | Purpose | (0-1)
+| Version | - | (0-1)
+| <hr/> | <hr/> | <hr/> | <hr/> | 
+| Files | - | - | -
+| - | Search Terms | - | -
+
+Files and code to parse Astropedia's pages and ingest into InvenioRDM.
 
 Content:
 * [Notebook](https://github.com/europlanet-gmap/invenio_tools/blob/main/astropedia_product_publishing-html.ipynb) using API for parsing/publishing the (meta)data packages
