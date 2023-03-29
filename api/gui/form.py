@@ -40,15 +40,22 @@ def assemble_widgets(form, layout):
         return assemble_widgets(form, [ field for field in form ])
 
 
-class Form(UserDict):
+class Form(dict):
     """
     Given a JSON-Schema, create form input widgets accordingly
     """
+    _widget = None 
+
     def __init__(self, schema:Union[dict,None], layout:Union[list,None] = None):
         """
         Create widgets following 'layout' (if given).
         """
         super().__init__()
+
+        assert 'type' in schema, "Expect attribute 'type' in schema"
+        if schema['type'] != 'object':
+            raise TypeError("Expected schema['type']='object'")
+
         attribute_widgets = schema2ipywidgets.main(schema)
         self.update(attribute_widgets)
 
@@ -63,7 +70,7 @@ class Form(UserDict):
     #     return super(object).__repr__()
         
     def set_layout(self, layout):
-        self._layout = layout 
+        self._widget = assemble_widgets(self, layout)
 
     def set(self, field:str, value:Any) -> bool:
         """Set 'value' to 'field'"""
@@ -103,7 +110,8 @@ class Form(UserDict):
     @property 
     def widget(self):
         """Return Form "app" """
-        return assemble_widgets(self, self._layout)
+        return self._widget
+
 
 
 # widget_types = dict(

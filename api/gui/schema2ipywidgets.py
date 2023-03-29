@@ -8,13 +8,19 @@ def main(obj:dict) -> dict:
     """
 
     assert isinstance(obj, dict), obj
-    assert obj['type'] == 'object', obj
+    # assert obj['type'] == 'object', obj
 
     # First, let's validate the schema
     assert validate_schema(obj)
     
-    # res = _handlers[obj['type']](obj)
-    res = _object(obj)
+    res = _handlers[obj['type']](obj)
+    # res = _object(obj)
+
+    if not isinstance(res, dict):
+        assert isinstance(res, widgets.Widget)
+        res = { res.description: res}
+
+    assert isinstance(res, dict)
     return res
 
 
@@ -40,6 +46,48 @@ def validate_json(obj:dict, schema:dict) -> bool:
         return True
 
 
+def _properties(obj:dict, required:list = None) -> dict:
+    """
+    Example:
+    >>> _properties(obj = {
+            "name": {"type": "string"}, 
+            "type": {"const": "dataset"}, 
+            "date": {"type": "string", "format": "date"}
+        }, required = ['name'])
+    """
+    required = set(required) if required else set()
+    _props = {}
+    for name, prop_obj in obj.items():
+        _props[name] = _property(prop_obj, name, required=name in required)
+
+    return _props
+
+
+def _property(obj:dict, name:str, required:bool = False):
+    """
+    Return an widget object according to "obj['type']"
+
+    >>> _property( {"type":"string"} )
+    """
+
+    # check supported attributes
+    supported_fields = ('type', 'oneOf')
+    assert any([ k in obj for k in supported_fields ]), obj
+
+    if 'type' in obj:
+        param_obj = _handlers[obj['type']](obj, name, required)
+
+    else:
+        assert 'oneOf' in obj, "The only supported optionals are 'oneOf'"
+
+        _widgets = [ _handlers[o['type']](o) for o in obj['oneOf'] ]
+        _widget = { 'oneOf': _widgets }
+
+        assert None, "TODO: review this '_widget' dictionary here"
+
+    return _widget
+
+
 def _object(obj:dict, required:bool=False) -> dict:
     """
     Process an 'object' element
@@ -54,15 +102,16 @@ def _object(obj:dict, required:bool=False) -> dict:
             "required": ["name"]
         })
     """
+    assert obj['type'] == 'object'
+
     # check mandatory fields
     mandatory_fields = ['type', 'properties']
-    assert all([ k in obj for k in mandatory_fields ])
-    assert obj['type'] == 'object'
+    missing_fields = list(filter(lambda f:f not in obj, mandatory_fields))
+    assert len(missing_fields) == 0, f"Missing fields in {obj}: {missing_fields}"
 
     # desc = obj['description']
 
-    props = _properties(obj['properties'],
-                        required = obj.get('required', None))
+    props = _properties(obj['properties'])
     return props
 
 
@@ -95,18 +144,18 @@ def _items(obj:dict, name:str, required:bool, minItems=None, maxItems=None):
  
  
 
-def _string(obj:dict, name:str, required:bool):
+# def _string(obj:dict, name:str, required:bool):
+def _string(obj:dict, **kwargs):
     """ 
     Return a Text iPywidget
     """
-    kwargs = {}
     if 'enum' in obj:
         w_cls = widgets.Dropdown
         kwargs.update({'options': obj['enum']})
     else:
         w_cls = widgets.Text
 
-    return make_widget(obj, name, required, w_cls, **kwargs)
+    return make_widget(obj, widget_class=w_cls, **kwargs)
 
 
 def _number(obj:dict, name:str, required:bool):
@@ -117,10 +166,13 @@ def _number(obj:dict, name:str, required:bool):
     return make_widget(obj, name, required, w_cls)
 
 
-def make_widget(obj:dict, name:str, required:bool, widget_class, **kwargs):
-    description = name.replace('_', ' ').title()
+def make_widget(obj:dict, widget_class, **kwargs):
     ro = obj['readOnly'] if 'readOnly' in obj else False
 
+    name = kwargs.pop('name', obj['type'].title())
+    description = name.replace('_', ' ').title()
+
+    required = kwargs.pop('required', False)
     if required:
         description = F'<strong style="color:red">{description}</strong>'
     if ro:
@@ -141,51 +193,12 @@ def make_widget(obj:dict, name:str, required:bool, widget_class, **kwargs):
     return widget
 
 
-_type_resolvers = {
+_handlers = {
     'string': _string,
     'number': _number,
     'array': _array,
     'object': _object,
 }
-
-_handlers = _type_resolvers
-
-
-def _properties(obj:dict, required:list = None) -> dict:
-    """
-    >>> _properties({"name": {"type": "string"}, "type": {"const": "dataset"}, "date": {"type": "string", "format": "date"}})
-    """
-    required = set(required) if required else set()
-    _props = {}
-    for name, prop_obj in obj.items():
-        _props[name] = _property(prop_obj, name, required=name in required)
-
-    return _props
-
-
-def _property(schema_property:dict, name:str, required:bool = False):
-    """
-    Return a "Param(*args, **kwargs)" object according to "obj['type']"
-
-    >>> _property( {"type":"string"} )
-    """
-    obj = schema_property
-
-    # check supported attributes
-    supported_fields = ('type', 'oneOf')
-    assert any([ k in obj for k in supported_fields ]), obj
-
-    if 'type' in obj:
-        param_obj = _type_resolvers[obj['type']](obj, name, required)
-
-    else:
-        assert 'oneOf' in obj, obj
-        param_objs = [ _type_resolvers[o['type']](o) for o in obj['oneOf'] ]
-        # param_obj = param.Selector(param_objs)
-        # param_obj = param_objs
-        param_obj = { 'oneOf': param_objs }
-
-    return param_obj
 
 
 def _date(val, *args) -> tuple:
