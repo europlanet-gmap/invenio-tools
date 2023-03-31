@@ -21,7 +21,7 @@ from . import schema2ipywidgets
 #         form.set(field, value)
 
 
-def assemble_widgets(form, layout):
+def assemble_widgets(form, layout:Union[str,list,dict,None]):
     """Layout widgets"""
     if isinstance(layout, str):
         return form[layout]
@@ -57,18 +57,13 @@ class Form(dict):
             raise TypeError("Expected schema['type']='object'")
 
         attribute_widgets = schema2ipywidgets.main(schema)
+        print(attribute_widgets)
         self.update(attribute_widgets)
 
         self._schema = schema
 
         self.set_layout(layout)
 
-    # def __str__(self):
-    #     return super(object).__str__()
-
-    # def __repr__(self):
-    #     return super(object).__repr__()
-        
     def set_layout(self, layout):
         self._widget = assemble_widgets(self, layout)
 

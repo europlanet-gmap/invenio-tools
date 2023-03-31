@@ -75,7 +75,7 @@ def _property(obj:dict, name:str, required:bool = False):
     assert any([ k in obj for k in supported_fields ]), obj
 
     if 'type' in obj:
-        param_obj = _handlers[obj['type']](obj, name, required)
+        _widget = _handlers[obj['type']](obj, name=name, required=required)
 
     else:
         assert 'oneOf' in obj, "The only supported optionals are 'oneOf'"
@@ -131,7 +131,8 @@ def _items(obj:dict, name:str, required:bool, minItems=None, maxItems=None):
     """
     Return a list of "param types"
     """
-    assert obj['type'] != 'array'
+    # assert obj['type'] != 'array'
+    assert len(obj) > 0, "Expected non-empty 'items' array"
 
     if 'enum' in obj:
         w_cls = widgets.SelectMultiple
@@ -158,12 +159,12 @@ def _string(obj:dict, **kwargs):
     return make_widget(obj, widget_class=w_cls, **kwargs)
 
 
-def _number(obj:dict, name:str, required:bool):
+def _number(obj:dict, **kwargs):
     """
     Return a FloatText iPywidget
     """
     w_cls = widgets.FloatText
-    return make_widget(obj, name, required, w_cls)
+    return make_widget(obj, widget_class=w_cls, **kwargs)
 
 
 def make_widget(obj:dict, widget_class, **kwargs):
