@@ -20,7 +20,8 @@ _widgets_defaults = {
     },
 
     'array': {
-        'type': form.widgets.VBox
+        'type': form.widgets.VBox,
+        'value': []
     }
 }
 
@@ -73,15 +74,13 @@ def test_empty_object():
 
 def _check_default_types_in_properties(_f, _props:dict):
     """
-    Utility function for default types (in properties)
+    Checks if widgets (in properties) have the expected default type/value
     """
     for prop_name, prop_obj in _props.items():
         _js_type = prop_obj['type']
         assert prop_name in _f 
-        # assert type(_f[prop_name]) == _widgets_defaults[_js_type]['type']
         assert isinstance(_f[prop_name], _widgets_defaults[_js_type]['type'])
-        if 'value' in _js_type:
-            assert _f[prop_name].value == _widgets_defaults[_js_type]['value']
+        assert _f[prop_name].value == _widgets_defaults[_js_type]['value']
 
 
 def test_string_property():
@@ -125,7 +124,7 @@ def test_number_property():
 
 def test_array_property():
     """
-    Test optional array field
+    Test array-items field
     """
     schema = {
         'type': 'object',
@@ -149,9 +148,127 @@ def test_array_property():
         _schema['properties']['arr'].update({'items': {}})
         Form(_schema)
 
-    schema['properties']['arr'].update({'items': {'type': 'string'}})
+
+def test_array_items():
+    schema = {
+        'type': 'object',
+        'properties': {
+            'arr': { 
+                'type': 'array',
+                'items': {
+                    'type': 'string'
+                }
+            }
+        }
+    }
+
     f = Form(schema)
 
     assert isinstance(f, dict), f
     assert len(f) == len(schema['properties'])
     _check_default_types_in_properties(f, schema['properties'])
+
+
+def test_the_whole_thing():
+    """
+    Test a workflow
+    """
+    # The schema for GMAP metadata (https://wiki.europlanet-gmap.eu/bin/view/Main/Documentation/Map-wide%20metadata/).
+    #
+    schema = {
+        "type": "object",
+        
+        "properties": {
+            'title': {
+                "type": "string",
+                "description": "A title"
+            },
+
+            'authors': {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "lastname": {"type": "string"},
+                        "firstname": {"type": "string"}
+                    }
+                },
+                "minItems": 1
+            },
+
+            'publication_date': {
+                "description": "Publication date",
+                "type": "string",
+                "format": "date"
+            },
+
+            'bbox_lon_west': {
+                "description": "West Longitude",
+                "type": "number",
+                "minimum": -180,
+                "maximum": 180
+            }, 
+
+            'bbox_lon_east': {
+                "description": "East Longitude",
+                "type": "number",
+                "minimum": -180,
+                "maximum": 180
+            },
+
+            'bbox_lat_min': {
+                "description": "Min Latitude",
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90
+            }, 
+
+            'bbox_lat_max': {
+                "description": "Max Latitude",
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90
+            }, 
+
+            'map_type': {
+                "description": "Map type",
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "Integrated",
+                        "Morphologic",
+                        "Compositional",
+                        "Digital model",
+                        "Stratigraphic",
+                        "Geo-structural",
+                    ]
+                },
+                "minItems": 1,
+                "uniqueItems": True
+            },
+
+            'target': {
+                "description": "Target body",
+                "type": "string",
+                "enum": ['Mars', 'Mercury', 'Moon', 'Venus']
+            },
+
+            'ID': {
+                "type": "string",
+                "readOnly": True
+            }
+        },
+        
+        "required": [
+            "ID",
+            "target",
+            "map_type",
+            "authors",
+            "title",
+        ]
+    }
+
+    f = Form(schema)
+    with pytest.raises(AssertionError):
+        data = f.to_json()
