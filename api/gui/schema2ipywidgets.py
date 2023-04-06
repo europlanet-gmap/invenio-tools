@@ -46,49 +46,7 @@ def validate_json(obj:dict, schema:dict) -> bool:
         return True
 
 
-def _properties(obj:dict, required:list = None) -> dict:
-    """
-    Example:
-    >>> _properties(obj = {
-            "name": {"type": "string"}, 
-            "type": {"const": "dataset"}, 
-            "date": {"type": "string", "format": "date"}
-        }, required = ['name'])
-    """
-    required = set(required) if required else set()
-    _props = {}
-    for name, prop_obj in obj.items():
-        _props[name] = _property(prop_obj, name, required=name in required)
-
-    return _props
-
-
-def _property(obj:dict, name:str, required:bool = False):
-    """
-    Return an widget object according to "obj['type']"
-
-    >>> _property( {"type":"string"} )
-    """
-
-    # check supported attributes
-    supported_fields = ('type', 'oneOf')
-    assert any([ k in obj for k in supported_fields ]), obj
-
-    if 'type' in obj:
-        _widget = _handlers[obj['type']](obj, name=name, required=required)
-
-    else:
-        assert 'oneOf' in obj, "The only supported optionals are 'oneOf'"
-
-        _widgets = [ _handlers[o['type']](o) for o in obj['oneOf'] ]
-        _widget = { 'oneOf': _widgets }
-
-        assert None, "TODO: review this '_widget' dictionary here"
-
-    return _widget
-
-
-def _object(obj:dict, required:bool=False) -> dict:
+def _object(obj:dict, name:str=None, required:bool=False) -> dict:
     """
     Process an 'object' element
 
@@ -102,17 +60,55 @@ def _object(obj:dict, required:bool=False) -> dict:
             "required": ["name"]
         })
     """
-    assert obj['type'] == 'object'
+    def _properties(obj:dict, required:list = None) -> dict:
+        """
+        Example:
+        >>> _properties(
+            obj = {
+                "name": {"type": "string"}, 
+                "type": {"const": "dataset"}, 
+                "date": {"type": "string", "format": "date"}
+            }, 
+            required = ['name']
+            )
+        """
+        required = set(required) if required else set()
+        _props = {}
+        for name, prop_obj in obj.items():
+            _props[name] = _property(prop_obj, name, required=name in required)
+        return _props
 
-    # check mandatory fields
+
+    def _property(obj:dict, name:str, required:bool = False):
+        """
+        Return an widget object according to "obj['type']"
+
+        >>> _property( {"type":"string"} )
+        """
+        # check supported attributes
+        supported_fields = ('type', 'oneOf')
+        assert any([ k in obj for k in supported_fields ]), obj
+        if 'type' in obj:
+            _widget = _handlers[obj['type']](obj, name=name, required=required)
+        else:
+            assert 'oneOf' in obj, "The only supported optionals are 'oneOf'"
+            _widgets = [ _handlers[o['type']](o) for o in obj['oneOf'] ]
+            _widget = { 'oneOf': _widgets }
+            assert None, "TODO: review this '_widget' dictionary here"
+        return _widget
+
+    # Check object's fields
+    #
     mandatory_fields = ['type', 'properties']
     missing_fields = list(filter(lambda f:f not in obj, mandatory_fields))
     assert len(missing_fields) == 0, f"Missing fields in {obj}: {missing_fields}"
-
-    # desc = obj['description']
+    assert obj['type'] == 'object'
 
     props = _properties(obj['properties'])
-    return props
+    if name:
+        return {name: props}
+    else:
+        return props
 
 
 def _array(obj:dict, name:str, required:bool) -> list:
@@ -123,11 +119,12 @@ def _array(obj:dict, name:str, required:bool) -> list:
     assert all([ k in obj for k in ['type', 'items'] ]), obj
     assert obj['type'] == 'array', obj
 
-    return _items(obj['items'], name, required,
+    return _items(obj['items'], name=name, required=required,
                   minItems = obj.get('minItems', None))
 
 
-def _items(obj:dict, name:str, required:bool, minItems=None, maxItems=None):
+# def _items(obj:dict, name:str, required:bool, minItems=None, maxItems=None):
+def _items(obj:dict, **kwargs):
     """
     Return a list of "param types"
     """
@@ -136,11 +133,12 @@ def _items(obj:dict, name:str, required:bool, minItems=None, maxItems=None):
 
     if 'enum' in obj:
         w_cls = widgets.SelectMultiple
-        kwargs = {'options': obj['enum']}
-        return make_widget(obj, name, required, w_cls, **kwargs)
+        kwargs.update({'options': obj['enum']})
+        return make_widget(obj, w_cls, **kwargs)
  
     if 'type' in obj:
         # Items have all the same schema
+        name = kwargs['name']
         return Items(obj, description=name.title())
  
  
@@ -251,7 +249,7 @@ class Object(OBJECT_BASECLASS):
 
     @property 
     def value(self):
-        value = [w.value for w in self._widgets.values()]
+        value = {f:w.value for f,w in self._widgets.items()}
         return value 
 
     @value.setter
